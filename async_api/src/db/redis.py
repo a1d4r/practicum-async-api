@@ -1,10 +1,16 @@
-from typing import Optional
+# nfrom typing import Optional
 
 from redis.asyncio import Redis
 
 redis: Redis | None = None
 
 
-# Функция понадобится при внедрении зависимостей
+class GetRedisError(Exception):
+    def __init__(self, message: str = "Redis not found"):
+        self.message = message
+
+
 async def get_redis() -> Redis:
+    if redis is None:
+        raise GetRedisError
     return redis
