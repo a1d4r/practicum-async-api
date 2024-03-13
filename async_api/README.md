@@ -7,8 +7,8 @@ Async API for online cinema
 1. Clone `git` repo:
 
 ```bash
-git clone https://github.com/a1d4r/Async_API_sprint_1.git
-cd Async_API_sprint_1/async_api
+git clone https://github.com/a1d4r/practicum-async-api.git
+cd practicum-async-api/async_api
 ```
 
 2. If you don't have `Poetry` installed run:
@@ -32,7 +32,7 @@ make format lint test
 
 ### Makefile usage
 
-[`Makefile`](https://github.com/a1d4r/Async_API_sprint_1/blob/master/async_api/Makefile) contains a lot of functions for faster development.
+[`Makefile`](https://github.com/a1d4r/practicum-async-api/blob/master/async_api/Makefile) contains a lot of functions for faster development.
 
 <details>
 <summary>1. Download and remove Poetry</summary>
