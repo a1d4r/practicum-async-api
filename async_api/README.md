@@ -1,4 +1,4 @@
-# async api
+# Async API
 
 Async API for online cinema
 
