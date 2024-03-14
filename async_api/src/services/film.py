@@ -1,16 +1,8 @@
-# nfrom typing import Optional
-import sys
-
-sys.path.append("async_api/src/models/")
-
 from functools import lru_cache
 
-# nfrom db.elastic import get_elastic
-# nfrom db.redis import get_redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from redis.asyncio import Redis
 
-# nfrom fastapi import Depends
 from src.models.film import Film
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5

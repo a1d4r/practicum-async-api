@@ -1,8 +1,7 @@
-# nfrom typing import Optional
-
+from core import config
 from redis.asyncio import Redis
 
-redis: Redis | None = None
+redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
 
 
 class GetRedisError(Exception):
