@@ -41,9 +41,9 @@ show_error_context = true
 show_traceback = true
 color_output = true
 # Uncomment this if you are using pydantic
-#plugins = [
-#  "pydantic.mypy"
-#]
+plugins = [
+  "pydantic.mypy"
+]
 
 strict = true  # https://mypy.readthedocs.io/en/stable/existing_code.html#introduce-stricter-options
 ignore_missing_imports = true
@@ -54,12 +54,12 @@ disallow_untyped_defs = false
 disallow_incomplete_defs = false
 
 # Uncomment this if you are using pydantic
-#[tool.pydantic-mypy]
+[tool.pydantic-mypy]
 ## https://pydantic-docs.helpmanual.io/mypy_plugin/#configuring-the-plugin
-#init_forbid_extra = true
-#init_typed = true
-#warn_required_dynamic_aliases = true
-#warn_untyped_fields = true
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
 
 [tool.pytest.ini_options]
 # https://docs.pytest.org/en/6.2.x/customize.html#pyproject-toml

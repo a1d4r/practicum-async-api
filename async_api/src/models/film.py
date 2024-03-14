@@ -1,25 +1,21 @@
-from http import HTTPStatus
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from collections.abc import Callable
+
+import orjson
+
 from pydantic import BaseModel
 
-from src.services.film import FilmService, get_film_service
 
-router = APIRouter()
+def orjson_dumps(v: Any, *, default: Callable[[Any], Any]) -> bytes:
+    return orjson.dumps(v, default=default)
 
 
 class Film(BaseModel):
     id: str
     title: str
+    description: str
 
-
-@router.get("/{film_id}", response_model=Film)
-async def film_details(film_id: str, film_service: FilmService) -> Film:
-    if film_service is None:
-        film_service = Depends(get_film_service)
-
-    film = await film_service.get_by_id(film_id)
-    if not film:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
-
-    return Film(id=film.id, title=film.title)
+    class Config:
+        json_loads = orjson.loads
+        json_dumps = orjson_dumps
