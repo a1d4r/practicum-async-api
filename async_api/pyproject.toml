@@ -15,11 +15,8 @@ fastapi = "^0.110.0"
 pydantic = "^2.6.4"
 uvicorn = "^0.28.0"
 uvloop = "^0.19.0"
-flake8 = "^7.0.0"
-black = "^24.2.0"
 
 [tool.poetry.group.dev.dependencies]  # https://python-poetry.org/docs/master/managing-dependencies/
-black = "^24.2.0"
 mypy = "^1.8.0"
 pre-commit = "^3.6.2"
 pytest = "^8.0.2"
