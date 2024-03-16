@@ -129,6 +129,28 @@ class PostgresExtractor:
                 yield [dto.FilmWorkIdModified(**row) for row in batch]
 
     @retry
+    def fetch_genres_info(
+        self,
+        genres: list[dto.GenreIdModified],
+    ) -> list[dto.GenreInfo]:
+        """Получить информацию о заданных жанрах."""
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    name,
+                    description,
+                    created,
+                    modified
+                FROM content.genre
+                WHERE id = ANY(%(genres_ids)s)
+                """,
+                ({"genres_ids": [genre.id for genre in genres]}),
+            )
+            return [dto.GenreInfo(**row) for row in cursor.fetchall()]
+
+    @retry
     def fetch_film_works_info(
         self,
         film_works: list[dto.FilmWorkIdModified],

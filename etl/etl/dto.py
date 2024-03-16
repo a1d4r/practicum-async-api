@@ -26,6 +26,17 @@ class FilmWorkIdModified(IdModified):
 
 
 @dataclass
+class GenreInfo:
+    """Информация о жанре."""
+
+    id: UUID
+    name: str
+    description: str
+    created: datetime
+    modified: datetime
+
+
+@dataclass
 class FilmWorkInfo:
     """Информация о кинопроизведении."""
 
@@ -64,6 +75,15 @@ class PersonElasticsearchRecord:
 
     id: UUID
     name: str
+
+
+@dataclass
+class GenreElasticsearchRecord:
+    """Объект для хранения информации о жанре в индексе Elasticsearch."""
+
+    id: UUID
+    name: str
+    description: str
 
 
 @dataclass

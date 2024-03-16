@@ -1,11 +1,10 @@
 from loguru import logger
 
-from etl import dto
+from etl import dto, transformer
 from etl.extractor import PostgresExtractor
 from etl.loader import ElasticsearchLoader
 from etl.settings import Settings
 from etl.state import ETLState, StateManager
-from etl.transformer import build_film_works_elasticsearch_records
 
 
 class ETL:
@@ -66,12 +65,8 @@ class ETL:
             if not genres:
                 logger.info("No genres were updated since {}", state.genres_modified_cursor)
                 return
-            logger.debug("Genres IDs: {}", genres)
-            logger.info(
-                "Retrieved {} genres updated since {}",
-                len(genres),
-                state.genres_modified_cursor,
-            )
+
+            self._update_genres_in_elasticsearch(genres=genres)
 
             for film_works in self.extractor.fetch_film_works_with_genres_in_batches(genres=genres):
                 self._update_film_works_in_elasticsearch(film_works=film_works)
@@ -106,6 +101,25 @@ class ETL:
 
         logger.info("Moved film works cursor to {}", state.film_works_modified_cursor)
 
+    def _update_genres_in_elasticsearch(self, genres: list[dto.GenreIdModified]) -> None:
+        """Обновляет данные о жанрах в Elasticsearch."""
+        logger.info("Retrieved {} genres", len(genres))
+
+        genres_info = self.extractor.fetch_genres_info(genres=genres)
+        genres_elasticsearch_records = transformer.build_genres_elasticsearch_records(
+            genres_info=genres_info,
+        )
+
+        logger.info(
+            "Going to insert {} documents into Elasticsearch",
+            len(genres_elasticsearch_records),
+        )
+        self.loader.load_genres_records(genres_elasticsearch_records)
+        logger.info(
+            "Inserted {} documents into Elasticsearch",
+            len(genres_elasticsearch_records),
+        )
+
     def _update_film_works_in_elasticsearch(self, film_works: list[dto.FilmWorkIdModified]) -> None:
         """Обновляет данные о фильмах в Elasticsearch."""
         logger.info("Retrieved {} film works with updated persons", len(film_works))
@@ -116,7 +130,7 @@ class ETL:
         film_works_genres = self.extractor.fetch_film_works_genres(film_works=film_works)
         film_works_persons = self.extractor.fetch_film_works_persons(film_works=film_works)
 
-        film_works_elasticsearch_records = build_film_works_elasticsearch_records(
+        film_works_elasticsearch_records = transformer.build_film_works_elasticsearch_records(
             film_works_info=film_works_info,
             film_works_genres=film_works_genres,
             film_works_persons=film_works_persons,
