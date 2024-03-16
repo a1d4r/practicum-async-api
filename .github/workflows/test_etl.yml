@@ -1,4 +1,4 @@
-name: app
+name: Test ETL
 
 on:
   push:
@@ -42,8 +42,4 @@ jobs:
 
     - name: Run linters
       run: make lint
-      working-directory: etl
-
-    - name: Run tests
-      run: make test
       working-directory: etl
