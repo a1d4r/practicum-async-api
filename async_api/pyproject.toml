@@ -8,9 +8,16 @@ name = "async_api"
 
 [tool.poetry.dependencies]  # https://python-poetry.org/docs/dependency-specification/
 python = "^3.12"
+redis = "^5.0.3"
+elasticsearch = { extras = ["async"], version = "^8.12.1" }
+fastapi = "^0.110.0"
+
+pydantic = "^2.6.4"
+uvicorn = "^0.28.0"
+uvloop = "^0.19.0"
 
 [tool.poetry.group.dev.dependencies]  # https://python-poetry.org/docs/master/managing-dependencies/
-black = "^24.2.0"
+black = "^24.3.0"
 mypy = "^1.8.0"
 pre-commit = "^3.6.2"
 pytest = "^8.0.2"
@@ -33,10 +40,9 @@ show_error_codes = true
 show_error_context = true
 show_traceback = true
 color_output = true
-# Uncomment this if you are using pydantic
-#plugins = [
-#  "pydantic.mypy"
-#]
+plugins = [
+  "pydantic.mypy"
+]
 
 strict = true  # https://mypy.readthedocs.io/en/stable/existing_code.html#introduce-stricter-options
 ignore_missing_imports = true
@@ -46,13 +52,12 @@ module = "tests.*"
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
 
-# Uncomment this if you are using pydantic
-#[tool.pydantic-mypy]
+[tool.pydantic-mypy]
 ## https://pydantic-docs.helpmanual.io/mypy_plugin/#configuring-the-plugin
-#init_forbid_extra = true
-#init_typed = true
-#warn_required_dynamic_aliases = true
-#warn_untyped_fields = true
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
 
 [tool.pytest.ini_options]
 # https://docs.pytest.org/en/6.2.x/customize.html#pyproject-toml
@@ -60,6 +65,7 @@ disallow_incomplete_defs = false
 filterwarnings = ["error", "ignore::DeprecationWarning", "ignore::ImportWarning"]
 testpaths = ["src", "tests"]
 xfail_strict = true
+pythonpath = ["src"]
 
 # Extra options:
 addopts = [
@@ -136,6 +142,10 @@ unfixable = [
 
 [tool.ruff.lint.flake8-tidy-imports]  # https://docs.astral.sh/ruff/settings/#flake8-tidy-imports
 ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-bugbear]
+# Allow default arguments like, e.g., `data: List[str] = fastapi.Query(None)`.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
 
 [tool.ruff.lint.isort]  # https://docs.astral.sh/ruff/settings/#isort
 section-order = ["future", "typing", "standard-library", "third-party", "first-party", "local-folder"]
