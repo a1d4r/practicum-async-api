@@ -1,0 +1,45 @@
+name: Test ETL
+
+on:
+  push:
+    branches: [master]
+    paths: ["etl/**"]
+  pull_request:
+    paths: ["etl/**"]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      id: setup-python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+
+    - name: Load cache
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-etl-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('etl/poetry.lock') }}
+
+    - name: Install dependencies if cache does not exist
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction --no-root
+      working-directory: etl
+
+    - name: Run linters
+      run: make lint
+      working-directory: etl
