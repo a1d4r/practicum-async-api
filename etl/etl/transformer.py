@@ -55,3 +55,17 @@ def build_film_works_elasticsearch_records(
         )
         for film_work_info in film_works_info
     ]
+
+
+def build_genres_elasticsearch_records(
+    genres_info: list[dto.GenreInfo],
+) -> list[dto.GenreElasticsearchRecord]:
+    """Преобразовывает данные о жанрах в формат, пригодный для индекса в Elasticsearch."""
+    return [
+        dto.GenreElasticsearchRecord(
+            id=genre_info.id,
+            name=genre_info.name,
+            description=genre_info.description,
+        )
+        for genre_info in genres_info
+    ]

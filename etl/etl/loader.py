@@ -34,3 +34,14 @@ class ElasticsearchLoader:
                 for record in film_works_records
             ],
         )
+
+    @retry
+    def load_genres_records(self, genres_records: list[dto.GenreElasticsearchRecord]) -> None:
+        """Загружает в индекс данные о жанрах."""
+        helpers.bulk(
+            self._client,
+            [
+                {"_index": "genres", "_id": str(record.id), "_source": dataclasses.asdict(record)}
+                for record in genres_records
+            ],
+        )

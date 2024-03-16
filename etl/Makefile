@@ -10,6 +10,11 @@ VERSION := latest
 CODE = etl tests
 TESTS = tests
 
+#* Application
+.PHONY: up
+up:
+	python -m etl.main
+
 #* Poetry
 .PHONY: poetry-download
 poetry-download:
