@@ -1,15 +1,16 @@
-from typing import ClassVar
+from dataclasses import dataclass
 
-from src.models.genre import Genre
-from src.models.mixins import OrjsonConfigMixin, UUIDMixin
-from src.models.person import Person
+from models.genre import Genre
+from models.mixins import UUIDBase
+from models.person import Person
 
 
-class Film(UUIDMixin, OrjsonConfigMixin):
+@dataclass
+class Film(UUIDBase):
     title: str
     imdb_rating: float
-    description: str = ""
-    genre: ClassVar[list[Genre]] = []
-    actors: ClassVar[list[Person]] = []
-    writers: ClassVar[list[Person]] = []
-    directors: ClassVar[list[Person]] = []
+    description: str
+    genre: list[Genre]
+    actors: list[Person]
+    writers: list[Person]
+    directors: list[Person]

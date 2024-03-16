@@ -1,7 +1,6 @@
+from models.mixins import UUIDBase
 from pydantic import Field
 
-from src.models.mixins import OrjsonConfigMixin, UUIDMixin
 
-
-class Person(UUIDMixin, OrjsonConfigMixin):
+class Person(UUIDBase):
     full_name: str = Field(alias="name")

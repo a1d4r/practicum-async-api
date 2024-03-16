@@ -1,5 +1,5 @@
-from src.models.mixins import OrjsonConfigMixin, UUIDMixin
+from models.mixins import UUIDBase
 
 
-class Genre(UUIDMixin, OrjsonConfigMixin):
+class Genre(UUIDBase):
     name: str
