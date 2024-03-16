@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.example import hello
+from example import hello
 
 
 @pytest.mark.parametrize(
