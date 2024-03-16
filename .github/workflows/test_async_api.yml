@@ -2,10 +2,10 @@ name: Test Async API
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [master]
+    paths: ["async_api/**"]
   pull_request:
+    paths: ["etl/**"]
 
 jobs:
   lint:
@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-async-api-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('async_api/poetry.lock') }}
 
       - name: Install dependencies if cache does not exist
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
