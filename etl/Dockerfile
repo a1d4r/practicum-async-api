@@ -81,7 +81,7 @@ RUN --mount=type=cache,target=/root/.cache \
 # will become mountpoint of our code
 WORKDIR /app
 
-CMD ["python", "-m", "etl.example"]
+CMD ["python", "-m", "etl.main"]
 
 
 ################################

@@ -63,13 +63,9 @@ services:
 
   init-elasticsearch:
     image: curlimages/curl:8.6.0
-    command: >-
-      curl -s
-      -XPUT -H 'Content-Type: application/json'
-      http://elasticsearch:9200/movies
-      -d @/data/index.json
+    command: /bin/sh "/data/create_indexes.sh"
     volumes:
-      - ./infra/elasticsearch/index.json:/data/index.json
+      - ./infra/elasticsearch/:/data/
     depends_on:
       elasticsearch:
         condition: service_healthy
