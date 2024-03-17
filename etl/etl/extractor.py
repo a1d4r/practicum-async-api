@@ -223,7 +223,7 @@ class PostgresExtractor:
         self,
         film_works: list[dto.FilmWorkIdModified],
     ) -> list[dto.FilmWorkPersonRecord]:
-        """Получить персон, которые участвовали в создании заданных кинопроизведений."""
+        """Получить информацию о персонах, которые участвовали в создании заданных кинопроизведений."""
         with self._connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -246,7 +246,7 @@ class PostgresExtractor:
         self,
         persons: list[dto.PersonIdModified],
     ) -> list[dto.PersonFilmWorkRecord]:
-        """Получить кинопроизведения и роли, в которых участвовал заданный персонаж."""
+        """Получить кинопроизведения и роли, в которых участвовала заданная персона."""
         with self._connection.cursor() as cursor:
             cursor.execute(
                 """

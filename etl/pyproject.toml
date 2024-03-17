@@ -15,7 +15,7 @@ homepage = "https://github.com/a1d4r/new_admin_panel_sprint_3"
 python = "^3.12"
 pydantic-settings = "^2.2.1"
 loguru = "^0.7.2"
-psycopg = { extras = ["binary"], version = "^3.1.18" }
+psycopg = {extras = ["binary"], version = "^3.1.18"}
 elasticsearch = "^8.12.1"
 apscheduler = "^3.10.4"
 tenacity = "^8.2.3"
