@@ -39,7 +39,7 @@ class FilmWorkIdModified(IdModified):
 
 @dataclass
 class GenreInfo:
-    """Информация о жанре."""
+    """Информация о жанре фильма из БД."""
 
     id: UUID
     name: str
@@ -50,7 +50,7 @@ class GenreInfo:
 
 @dataclass
 class PersonInfo:
-    """Информация о персоне."""
+    """Информация о персоне из БД."""
 
     id: UUID
     full_name: str
@@ -69,7 +69,7 @@ class PersonFilmWorkRecord:
 
 @dataclass
 class FilmWorkInfo:
-    """Информация о кинопроизведении."""
+    """Информация о кинопроизведении из БД."""
 
     id: UUID
     title: str
@@ -83,7 +83,7 @@ class FilmWorkInfo:
 
 @dataclass
 class FilmWorkGenreRecord:
-    """Связь между кинопроизведением и жанром."""
+    """Связь между кинопроизведением и жанром из БД."""
 
     film_work_id: UUID
     genre_id: UUID
