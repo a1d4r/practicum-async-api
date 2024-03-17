@@ -43,12 +43,12 @@ def build_film_works_elasticsearch_records(
                 if fwp.role == "writer"
             ],
             actors=[
-                dto.PersonElasticsearchRecord(id=fwp.person_id, name=fwp.person_full_name)
+                dto.PersonMinimalElasticsearchRecord(id=fwp.person_id, name=fwp.person_full_name)
                 for fwp in persons_by_film_work_id[film_work_info.id]
                 if fwp.role == "actor"
             ],
             writers=[
-                dto.PersonElasticsearchRecord(id=fwp.person_id, name=fwp.person_full_name)
+                dto.PersonMinimalElasticsearchRecord(id=fwp.person_id, name=fwp.person_full_name)
                 for fwp in persons_by_film_work_id[film_work_info.id]
                 if fwp.role == "writer"
             ],
@@ -68,4 +68,25 @@ def build_genres_elasticsearch_records(
             description=genre_info.description,
         )
         for genre_info in genres_info
+    ]
+
+
+def build_persons_elasticsearch_records(
+    persons_info: list[dto.PersonInfo],
+    persons_film_works: list[dto.PersonFilmWorkRecord],
+) -> list[dto.PersonElasticsearchRecord]:
+    """Преобразовывает данные о персонах в формат, пригодный для индекса в Elasticsearch."""
+    films_by_person_id: dict[UUID, list[dto.PersonFilmWorkRecord]] = defaultdict(list)
+    for pfw in persons_film_works:
+        films_by_person_id[pfw.person_id].append(pfw)
+    return [
+        dto.PersonElasticsearchRecord(
+            id=person_info.id,
+            full_name=person_info.full_name,
+            films=[
+                dto.FilmWorkMinimalElasticsearchRecord(id=film.film_work_id, roles=film.roles)
+                for film in films_by_person_id[person_info.id]
+            ],
+        )
+        for person_info in persons_info
     ]

@@ -151,6 +151,27 @@ class PostgresExtractor:
             return [dto.GenreInfo(**row) for row in cursor.fetchall()]
 
     @retry
+    def fetch_persons_info(
+        self,
+        persons: list[dto.PersonIdModified],
+    ) -> list[dto.PersonInfo]:
+        """Получить информацию о заданных персонах."""
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    full_name,
+                    created,
+                    modified
+                FROM content.person
+                WHERE id = ANY(%(persons_ids)s)
+                """,
+                ({"persons_ids": [person.id for person in persons]}),
+            )
+            return [dto.PersonInfo(**row) for row in cursor.fetchall()]
+
+    @retry
     def fetch_film_works_info(
         self,
         film_works: list[dto.FilmWorkIdModified],
@@ -219,3 +240,24 @@ class PostgresExtractor:
                 ({"film_works_ids": [film_work.id for film_work in film_works]}),
             )
             return [dto.FilmWorkPersonRecord(**row) for row in cursor.fetchall()]
+
+    @retry
+    def fetch_persons_film_works(
+        self,
+        persons: list[dto.PersonIdModified],
+    ) -> list[dto.PersonFilmWorkRecord]:
+        """Получить кинопроизведения и роли, в которых участвовал заданный персонаж."""
+        with self._connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    person_id,
+                    film_work_id,
+                    array_agg(role) AS roles
+                FROM content.person_film_work
+                WHERE person_id = ANY(%(persons_ids)s)
+                GROUP BY (person_id, film_work_id)
+                """,
+                ({"persons_ids": [person.id for person in persons]}),
+            )
+            return [dto.PersonFilmWorkRecord(**row) for row in cursor.fetchall()]

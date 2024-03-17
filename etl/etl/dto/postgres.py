@@ -4,6 +4,18 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+__all__ = [
+    "PersonIdModified",
+    "GenreIdModified",
+    "FilmWorkIdModified",
+    "GenreInfo",
+    "PersonInfo",
+    "PersonFilmWorkRecord",
+    "FilmWorkInfo",
+    "FilmWorkGenreRecord",
+    "FilmWorkPersonRecord",
+]
+
 
 @dataclass
 class IdModified:
@@ -37,6 +49,25 @@ class GenreInfo:
 
 
 @dataclass
+class PersonInfo:
+    """Информация о персоне."""
+
+    id: UUID
+    full_name: str
+    created: datetime
+    modified: datetime
+
+
+@dataclass
+class PersonFilmWorkRecord:
+    """Информация о фильме и ролях, в котором участвовала персона."""
+
+    person_id: UUID
+    film_work_id: UUID
+    roles: list[str]
+
+
+@dataclass
 class FilmWorkInfo:
     """Информация о кинопроизведении."""
 
@@ -61,42 +92,9 @@ class FilmWorkGenreRecord:
 
 @dataclass
 class FilmWorkPersonRecord:
-    """Связь между кинопроизведением и персоной."""
+    """Информация о персоне, участвовавшей в кинопроизведении."""
 
     film_work_id: UUID
     person_id: UUID
     person_full_name: str
     role: str
-
-
-@dataclass
-class PersonElasticsearchRecord:
-    """Объект для хранения информации о персоне в индексе Elasticsearch."""
-
-    id: UUID
-    name: str
-
-
-@dataclass
-class GenreElasticsearchRecord:
-    """Объект для хранения информации о жанре в индексе Elasticsearch."""
-
-    id: UUID
-    name: str
-    description: str
-
-
-@dataclass
-class FilmWorkElasticsearchRecord:
-    """Объект для хранения информации о кинопроизведении в индексе Elasticsearch."""
-
-    id: UUID
-    imdb_rating: float
-    genre: list[str]
-    title: str
-    description: str
-    director: list[str]
-    actors_names: list[str]
-    writers_names: list[str]
-    actors: list[PersonElasticsearchRecord]
-    writers: list[PersonElasticsearchRecord]
