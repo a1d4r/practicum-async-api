@@ -1,5 +1,5 @@
+from models.base import UUIDBase
 from models.film import FilmWorkMinimal
-from models.mixins import UUIDBase
 from pydantic import Field
 
 

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
+from models.base import UUIDBase
 from models.genre import Genre
-from models.mixins import UUIDBase
 from models.person import Person
 
 

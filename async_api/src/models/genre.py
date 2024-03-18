@@ -1,4 +1,4 @@
-from models.mixins import UUIDBase
+from models.base import UUIDBase
 
 
 class Genre(UUIDBase):
