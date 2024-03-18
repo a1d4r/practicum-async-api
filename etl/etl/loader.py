@@ -1,5 +1,7 @@
 import dataclasses
 
+from collections.abc import Sequence
+
 import elastic_transport
 import tenacity
 
@@ -22,26 +24,38 @@ class ElasticsearchLoader:
         self._client = client
 
     @retry
+    def _load_records(self, index: str, records: Sequence[dto.BaseElasticsearchRecord]) -> None:
+        """Загружает в данные в заданный индекс."""
+        logger.info(
+            "Going to insert {} documents into Elasticsearch",
+            len(records),
+        )
+        helpers.bulk(
+            self._client,
+            [
+                {"_index": index, "_id": str(record.id), "_source": dataclasses.asdict(record)}
+                for record in records
+            ],
+        )
+        logger.info(
+            "Inserted {} documents into Elasticsearch",
+            len(records),
+        )
+
+    @retry
     def load_film_works_records(
         self,
         film_works_records: list[dto.FilmWorkElasticsearchRecord],
     ) -> None:
         """Загружает в индекс данные о фильмах."""
-        helpers.bulk(
-            self._client,
-            [
-                {"_index": "movies", "_id": str(record.id), "_source": dataclasses.asdict(record)}
-                for record in film_works_records
-            ],
-        )
+        self._load_records("movies", film_works_records)
 
     @retry
     def load_genres_records(self, genres_records: list[dto.GenreElasticsearchRecord]) -> None:
         """Загружает в индекс данные о жанрах."""
-        helpers.bulk(
-            self._client,
-            [
-                {"_index": "genres", "_id": str(record.id), "_source": dataclasses.asdict(record)}
-                for record in genres_records
-            ],
-        )
+        self._load_records("genres", genres_records)
+
+    @retry
+    def load_persons_records(self, persons_records: list[dto.PersonElasticsearchRecord]) -> None:
+        """Загружает в индекс данные о персонах."""
+        self._load_records("persons", persons_records)

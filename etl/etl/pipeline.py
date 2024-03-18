@@ -46,8 +46,10 @@ class ETL:
                 state.persons_modified_cursor,
             )
 
+            self._update_persons_in_elasticsearch(persons)
+
             for film_works in self.extractor.fetch_film_works_with_persons_in_batches(persons):
-                self._update_film_works_in_elasticsearch(film_works=film_works)
+                self._update_film_works_in_elasticsearch(film_works)
 
             state.persons_modified_cursor = persons[-1].modified
             self.state_manager.save_state(state)
@@ -66,10 +68,10 @@ class ETL:
                 logger.info("No genres were updated since {}", state.genres_modified_cursor)
                 return
 
-            self._update_genres_in_elasticsearch(genres=genres)
+            self._update_genres_in_elasticsearch(genres)
 
-            for film_works in self.extractor.fetch_film_works_with_genres_in_batches(genres=genres):
-                self._update_film_works_in_elasticsearch(film_works=film_works)
+            for film_works in self.extractor.fetch_film_works_with_genres_in_batches(genres):
+                self._update_film_works_in_elasticsearch(film_works)
 
             state.genres_modified_cursor = genres[-1].modified
             self.state_manager.save_state(state)
@@ -94,7 +96,7 @@ class ETL:
                 state.film_works_modified_cursor,
             )
 
-            self._update_film_works_in_elasticsearch(film_works=film_works)
+            self._update_film_works_in_elasticsearch(film_works)
 
             state.film_works_modified_cursor = film_works[-1].modified
             self.state_manager.save_state(state)
@@ -105,43 +107,36 @@ class ETL:
         """Обновляет данные о жанрах в Elasticsearch."""
         logger.info("Retrieved {} genres", len(genres))
 
-        genres_info = self.extractor.fetch_genres_info(genres=genres)
+        genres_info = self.extractor.fetch_genres_info(genres)
         genres_elasticsearch_records = transformer.build_genres_elasticsearch_records(
-            genres_info=genres_info,
-        )
-
-        logger.info(
-            "Going to insert {} documents into Elasticsearch",
-            len(genres_elasticsearch_records),
+            genres_info,
         )
         self.loader.load_genres_records(genres_elasticsearch_records)
-        logger.info(
-            "Inserted {} documents into Elasticsearch",
-            len(genres_elasticsearch_records),
+
+    def _update_persons_in_elasticsearch(self, persons: list[dto.PersonIdModified]) -> None:
+        """Обновляет данные о персонах в Elasticsearch."""
+        logger.info("Retrieved {} persons", len(persons))
+
+        persons_info = self.extractor.fetch_persons_info(persons)
+        persons_film_works = self.extractor.fetch_persons_film_works(persons)
+
+        persons_elasticsearch_records = transformer.build_persons_elasticsearch_records(
+            persons_info,
+            persons_film_works,
         )
+        self.loader.load_persons_records(persons_elasticsearch_records)
 
     def _update_film_works_in_elasticsearch(self, film_works: list[dto.FilmWorkIdModified]) -> None:
         """Обновляет данные о фильмах в Elasticsearch."""
         logger.info("Retrieved {} film works with updated persons", len(film_works))
 
-        logger.info("Collecting film works info")
-
-        film_works_info = self.extractor.fetch_film_works_info(film_works=film_works)
-        film_works_genres = self.extractor.fetch_film_works_genres(film_works=film_works)
-        film_works_persons = self.extractor.fetch_film_works_persons(film_works=film_works)
+        film_works_info = self.extractor.fetch_film_works_info(film_works)
+        film_works_genres = self.extractor.fetch_film_works_genres(film_works)
+        film_works_persons = self.extractor.fetch_film_works_persons(film_works)
 
         film_works_elasticsearch_records = transformer.build_film_works_elasticsearch_records(
             film_works_info=film_works_info,
             film_works_genres=film_works_genres,
             film_works_persons=film_works_persons,
         )
-        logger.info(
-            "Going to insert {} documents into Elasticsearch",
-            len(film_works_elasticsearch_records),
-        )
-
         self.loader.load_film_works_records(film_works_elasticsearch_records)
-        logger.info(
-            "Inserted {} documents into Elasticsearch",
-            len(film_works_elasticsearch_records),
-        )
