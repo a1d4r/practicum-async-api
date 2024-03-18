@@ -10,6 +10,10 @@ from models.film import FilmWork, FilmMinimal, FilmShort, FilmWorkMinimal
 from redis.asyncio import Redis
 from services.utils import get_key_by_args
 
+from elasticsearch_dsl import Search
+from elasticsearch_dsl.connections import connections
+
+
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
 
@@ -96,33 +100,12 @@ class FilmService:
         return FilmWork(**doc["_source"])
 
     async def _get_films_from_elastic(self, **kwargs) -> list[FilmWork]:
-        page_size = kwargs.get("page_size", 10)
-        page = kwargs.get("page", 1)
-        sort = kwargs.get("sort", "")
-        genre = kwargs.get("genre", None)
-        query = kwargs.get("query", None)
-
-        body = {}
-
-        if genre:
-            body["query"] = {"query_string": {"default_field": "genre", "query": genre}}
-
-        if query:
-            body["query"] = {
-                "match": {"title": {"query": query, "fuzziness": 1, "operator": "and"}}
-            }
-
         try:
-            docs = await self.elastic.search(
-                index="movies", body=body, size=page_size, from_=page - 1, sort=sort
-            )
+            films_work_search = Search(index="movies").using(get_elastic())
+            films_work_response = films_work_search.execute()
         except NotFoundError:
-            logger.debug("An error occurred while trying to get films in ES")
             return None
-
-        return [await FilmService._make_film_from_es_doc(doc) for doc in docs["hits"]["hits"]]
-
-        return [await FilmService._make_film_from_es_doc(doc) for doc in docs["hits"]["hits"]]
+        return [hit for hit in films_work_response]
 
     async def _get_film_minimal_from_elasticsearch(self, film_id: str) -> FilmMinimal | None:
         try:
