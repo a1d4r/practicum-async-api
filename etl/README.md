@@ -1,59 +1,60 @@
-# ETL
+# ETL Service
 
-ETL for data transfer from PostgreSQL to Elasticsearch
+ETL for data transfer from PostgreSQL to Elasticsearch.
 
-## Run everything in Docker
+## Run in docker
 
 ```
-docker compose up -d
+docker compose --profile infra --profile etl up -d
 ```
 
 ## Run locally
 
-Run infrastructure in Docker:
+1. [Prepare python environment](#prepare-python-environment)
+
+2. Prepare environment variables
+
+```
+cp .env.example .env
+```
+
+3. Run infrastructure in Docker:
 
 ```
 docker compose --profile infra up -d
 ```
 
-First, complete all the steps from Installation section. Then, run ETL using python:
+4. Run ETL service:
 
 ```
 python -m etl.main
 ```
 
+## Prepare python environment
 
-## Installation
-
-1. Clone `git` repo:
-
-```bash
-git clone https://github.com/a1d4r/new_admin_panel_sprint_3.git
-cd etl
-```
-
-2. If you don't have `Poetry` installed run:
+1. If you don't have `Poetry` installed run:
 
 ```bash
 make poetry-download
 ```
 
-3. Initialize poetry and install `pre-commit` hooks:
+2. Initialize poetry and install `pre-commit` hooks:
 
 ```bash
 make install
 make pre-commit-install
 ```
 
-4. Run formatters, linters, and tests. Make sure there is no errors.
+3. Run formatters and linters. Make sure there is no errors.
 
 ```bash
-make format lint test
+make format lint
 ```
 
 ### Makefile usage
 
-[`Makefile`](https://github.com/a1d4r/new_admin_panel_sprint_3/blob/master/Makefile) contains a lot of functions for faster development.
+[`Makefile`](https://github.com/a1d4r/new_admin_panel_sprint_3/blob/master/Makefile) contains a lot of functions for
+faster development.
 
 <details>
 <summary>1. Download and remove Poetry</summary>

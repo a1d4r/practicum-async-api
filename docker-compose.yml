@@ -4,10 +4,10 @@ services:
 
   etl:
     build:
-      context: .
+      context: etl
       target: production
     env_file:
-      - .env.docker
+      - etl/.env.docker
     volumes:
       - etl-data:/data
     depends_on:
@@ -15,6 +15,24 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
+    profiles:
+      - etl
+
+  api:
+    build:
+      context: async_api
+      target: production
+    env_file:
+      - async_api/.env.docker
+    volumes:
+      - etl-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    profiles:
+      - api
 
   postgres:
     image: postgres:16-alpine
