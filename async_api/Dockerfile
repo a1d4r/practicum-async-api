@@ -17,7 +17,7 @@ ENV PYTHONUNBUFFERED=1 \
     \
     # poetry
     # https://python-poetry.org/docs/configuration/#using-environment-variables
-    POETRY_VERSION=1.6.1 \
+    POETRY_VERSION=1.8.1 \
     # make poetry install to this location
     POETRY_HOME="/opt/poetry" \
     # make poetry create the virtual environment in the project's root
@@ -81,7 +81,7 @@ RUN --mount=type=cache,target=/root/.cache \
 # will become mountpoint of our code
 WORKDIR /app
 
-CMD ["python", "-m", "src.example"]
+CMD ["uvicorn", "--app-dir", "src", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 
 ################################
@@ -92,4 +92,4 @@ FROM python-base as production
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY ./src /app/src
 WORKDIR /app
-CMD ["python", "-m", "src.example"]
+CMD ["uvicorn", "--app-dir", "src", "main:app", "--host", "0.0.0.0", "--port", "8000"]

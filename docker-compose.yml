@@ -24,11 +24,7 @@ services:
       target: production
     env_file:
       - async_api/.env.docker
-    volumes:
-      - etl-data:/data
     depends_on:
-      postgres:
-        condition: service_healthy
       elasticsearch:
         condition: service_healthy
     profiles:
