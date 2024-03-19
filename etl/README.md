@@ -27,7 +27,7 @@ docker compose --profile infra up -d
 4. Run ETL service:
 
 ```
-python -m etl.main
+make up
 ```
 
 ## Prepare python environment

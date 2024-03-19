@@ -6,7 +6,7 @@ from models.person import Person
 
 
 @dataclass
-class FilmWork(UUIDBase):
+class Film(UUIDBase):
     """Модель для хранения информации о фильме."""
 
     title: str
@@ -33,9 +33,3 @@ class FilmShort(UUIDBase):
 
     title: str
     imdb_rating: float
-
-
-class FilmWorkMinimal(UUIDBase):
-    """Модель для хранения краткой информации о кинопроизведении."""
-
-    roles: list[str]
