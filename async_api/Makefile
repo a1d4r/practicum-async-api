@@ -10,6 +10,11 @@ VERSION := latest
 CODE = src tests
 TESTS = tests
 
+#* Application
+.PHONY: up
+up:
+	uvicorn --app-dir src main:app --host 0.0.0.0 --port 8000
+
 #* Poetry
 .PHONY: poetry-download
 poetry-download:

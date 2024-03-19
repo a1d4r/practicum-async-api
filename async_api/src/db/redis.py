@@ -1,7 +1,7 @@
-from core import config
+from core.settings import settings
 from redis.asyncio import Redis
 
-redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
+redis: Redis = Redis.from_url(str(settings.redis_url))
 
 
 async def get_redis() -> Redis:

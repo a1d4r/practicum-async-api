@@ -1,6 +1,5 @@
-from pydantic import Field
-
 from models.base import UUIDBase
+from pydantic import Field
 
 
 class PersonFilmRoles(UUIDBase):
