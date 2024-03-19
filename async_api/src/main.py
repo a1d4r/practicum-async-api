@@ -1,15 +1,11 @@
-import os
-
-import uvicorn
-
 from api.v1 import films
-from core import config
+from core.settings import settings
 from db import elastic, redis
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 app = FastAPI(
-    title=config.PROJECT_NAME,
+    title=settings.api_project_name,
     root_path="/api",
     default_response_class=ORJSONResponse,
 )
@@ -28,10 +24,3 @@ async def shutdown() -> None:
 
 
 app.include_router(films.router, prefix="/v1/films", tags=["films"])
-
-if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host=str(os.getenv("HOST")),
-        port=8000,
-    )

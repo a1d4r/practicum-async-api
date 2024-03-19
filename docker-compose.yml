@@ -4,10 +4,10 @@ services:
 
   etl:
     build:
-      context: .
+      context: etl
       target: production
     env_file:
-      - .env.docker
+      - etl/.env.docker
     volumes:
       - etl-data:/data
     depends_on:
@@ -15,6 +15,20 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
+    profiles:
+      - etl
+
+  api:
+    build:
+      context: async_api
+      target: production
+    env_file:
+      - async_api/.env.docker
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    profiles:
+      - api
 
   postgres:
     image: postgres:16-alpine
@@ -33,6 +47,13 @@ services:
     profiles:
       - infra
 
+  redis:
+    image: redis:7.2.4-alpine
+    ports:
+      - "6379:6379"
+    profiles:
+      - infra
+
   elasticsearch:
     image: elasticsearch:8.12.2
     environment:
@@ -48,6 +69,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 1GB
+        reservations:
+          cpus: '0.50'
+          memory: 1GB
     profiles:
       - infra
 
@@ -57,9 +86,6 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
       - "5601:5601"
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
     profiles:
       - infra
 
@@ -79,3 +105,4 @@ volumes:
   etl-data:
   postgres-data:
   elasticsearch-data:
+  redis-data:
