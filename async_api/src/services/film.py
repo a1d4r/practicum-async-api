@@ -39,7 +39,6 @@ class FilmService:
         films = Search(get_elastic())
         if not films:
             return
-
         if genre:
             films = films.filter("term", genre=genre)
 
@@ -53,24 +52,6 @@ class FilmService:
         return films
 
     @staticmethod
-    async def _make_person_from_elasticsearch_doc(doc: dict):
-        pass
-
-    async def _get_person_from_elasticsearch(self, person_id: str):
-        pass
-
-    async def _get_persons_from_elasticsearch(self, **kwargs):
-        pass
-
-    async def _person_from_cache(self, person_id: str):
-        pass
-
-    async def _persons_from_cache(self, **kwargs):
-        pass
-
-    async def _put_person_to_cache(self, person):
-        pass
-
     async def get_film_by_id(self, film_id: str) -> FilmWork | None:
         film = await self._film_from_work_cache(film_id)
         if not film:
@@ -97,20 +78,21 @@ class FilmService:
         return [hit for hit in films_work_response]
 
     async def _film_from_cache(self, film_id: str) -> FilmWork | None:
-        data = await self.redis.get(film_id)
+        data = await self.redis.get(f"films:{film_id}")
         if not data:
             return None
 
         return FilmWork.parse_raw(data)
 
-    async def _film_work_from_cache(self, film_id: str) -> FilmWork | None:
+    async def _film_from_cache(self, film_id: str) -> FilmWork:
         data = await self.redis.get(film_id)
         if not data:
-            film = await self._get_film_work_from_elastic_by_id(film_id)
-            if film:
-                await self.redis.set(film_id, film.json())
-            return film
-        return FilmWork.parse_raw(data)
+            logger.debug(f"The film was not found in the cache (id: {film_id})")
+            return None
+
+        film = FilmWork.parse_raw(data)
+
+        return film
 
     async def _films_from_cache(self, **kwargs) -> list[FilmWork]:
         key = await get_key_by_args(**kwargs)
@@ -123,6 +105,11 @@ class FilmService:
 
     async def _put_film_to_cache(self, film: FilmWork) -> None:
         await self.redis.set(film.id, film, FILM_CACHE_EXPIRE_IN_SECONDS)
+
+    async def _put_films_to_cache(self, films: list[FilmWork], **search_params):
+        key = await get_key_by_args(**search_params)
+        films_data = [film.dict(by_alias=True) for film in films]
+        await self.redis.set(key, films_data, ex=FILM_CACHE_EXPIRE_IN_SECONDS)
 
 
 @lru_cache
