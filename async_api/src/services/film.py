@@ -25,10 +25,10 @@ class FilmService:
     async def all_films(self, **kwargs: dict[str, Any]) -> list[Film]:
         films = await self._films_from_cache(**kwargs)
         if not films:
-            films = await self._get_films_from_elasticsearch(Film)
+            films = await self._get_films_from_elasticsearch(**kwargs)
             if not films:
                 return []
-            await self._put_films_to_cache(Film)
+            await self._put_films_to_cache(films, **kwargs)
         return films
 
     def get_all_films_from_elasticsearch(
@@ -39,7 +39,7 @@ class FilmService:
         genre: str | None = None,
         query: str | None = None,
     ) -> dict | None:
-        films = Search(get_elastic())
+        films = Search(using=get_elastic(), index="movies")
         if not films:
             return None
         if genre:
@@ -89,6 +89,9 @@ class FilmService:
 
     async def _films_from_cache(self, **kwargs: dict[str, Any]) -> list[Film]:
         key = await get_key_by_args(**kwargs)
+        if not key:
+            logger.debug("Key not found in the cache")
+            return None
         data = await self.redis.get(key)
         if not data:
             logger.debug("Film was not found in the cache")
@@ -97,11 +100,15 @@ class FilmService:
         return [Film.parse_raw(item) for item in data]
 
     async def _put_film_to_cache(self, film: Film) -> None:
-        await self.redis.set(film.id, film, FILM_CACHE_EXPIRE_IN_SECONDS)
+        await self.redis.set(film.id, str(film), FILM_CACHE_EXPIRE_IN_SECONDS)
 
     async def _put_films_to_cache(self, films: list[Film], **search_params: str | Any) -> None:
         key = await get_key_by_args(**search_params)
+        if not key:
+            return
         films_data = [film.dict(by_alias=True) for film in films]
+        if not films_data:
+            return
         await self.redis.set(key, str(films_data), ex=FILM_CACHE_EXPIRE_IN_SECONDS)
 
 
