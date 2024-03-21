@@ -25,6 +25,8 @@ class PersonService:
 
     async def search(
         self,
+        *,
+        query: str | None = None,
         page: int = 1,
         size: int = settings.default_page_size,
     ) -> list[Person]:
@@ -32,6 +34,6 @@ class PersonService:
             index=settings.es_persons_index,
             from_=(page - 1) * size,
             size=size,
-            query={"match_all": {}},
+            query={"match": {"full_name": query}} if query else {"match_all": {}},
         )
         return [Person.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]

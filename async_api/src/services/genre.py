@@ -1,7 +1,5 @@
 from typing import Annotated, NewType
 
-import asyncio
-
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -37,20 +35,3 @@ class GenreService:
             query={"match_all": {}},
         )
         return [Genre.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
-
-
-async def main() -> None:
-    elastic = get_elastic()
-    service = GenreService(elastic)
-    genre = await service.get_by_id(GenreID(UUID("3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff")))
-    print(genre)  # noqa: T201
-    genre = await service.get_by_id(GenreID(UUID("3e8d9bf5-0d90-4353-88ba-4ccc5d2c07ff")))
-    print(genre)  # noqa: T201
-    genres_1 = await service.search(page=1)
-    genres_2 = await service.search(page=2)
-    print(genres_1)  # noqa: T201
-    print(genres_2)  # noqa: T201
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

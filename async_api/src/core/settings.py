@@ -8,15 +8,17 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 class Settings(BaseSettings):
     api_project_name: str = "Movies"
+
+    # cache
     redis_url: RedisDsn
+
+    # elasticsearch
     elasticsearch_host: str
+    es_genres_index: str = "genres"
+    es_persons_index: str = "persons"
 
     # pagination
     default_page_size: int = 50
-
-    # elasticsearch
-    es_genres_index: str = "genres"
-    es_persons_index: str = "persons"
 
 
 settings = Settings(_env_file=PROJECT_ROOT / ".env")
