@@ -26,6 +26,7 @@ coverage = "^7.4.3"
 typeguard = "^4.1.5"
 ruff = "^0.3.0"
 safety = "<3.0.0"  # Pinned to <3.0.0 due to https://github.com/pyupio/safety/issues/504
+pytest-asyncio = "^0.23.6"
 
 [tool.black]  # https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
 target-version = ["py312"]
@@ -69,6 +70,7 @@ filterwarnings = ["error", "ignore::DeprecationWarning", "ignore::ImportWarning"
 testpaths = ["src", "tests"]
 xfail_strict = true
 pythonpath = ["src"]
+asyncio_mode = "auto"
 
 # Extra options:
 addopts = [

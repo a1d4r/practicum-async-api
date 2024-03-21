@@ -1,8 +1,9 @@
-from typing import Annotated
+from typing import Annotated, NewType
 
 import asyncio
 
 from dataclasses import dataclass
+from uuid import UUID
 
 from core.settings import settings
 from db.elastic import get_elastic
@@ -10,14 +11,16 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from models.genre import Genre
 
+GenreID = NewType("GenreID", UUID)
+
 
 @dataclass
 class GenreService:
     elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
 
-    async def get_by_id(self, genre_id: str) -> Genre | None:
+    async def get_by_id(self, genre_id: GenreID) -> Genre | None:
         try:
-            doc = await self.elastic.get(index=settings.es_genres_index, id=genre_id)
+            doc = await self.elastic.get(index=settings.es_genres_index, id=str(genre_id))
         except NotFoundError:
             return None
         return Genre.model_validate(doc["_source"])
@@ -39,9 +42,9 @@ class GenreService:
 async def main() -> None:
     elastic = get_elastic()
     service = GenreService(elastic)
-    genre = await service.get_by_id("3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff")
+    genre = await service.get_by_id(GenreID(UUID("3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff")))
     print(genre)  # noqa: T201
-    genre = await service.get_by_id("3e8d9bf5-0d90-4353-88ba-4ccc5d2c07ff")
+    genre = await service.get_by_id(GenreID(UUID("3e8d9bf5-0d90-4353-88ba-4ccc5d2c07ff")))
     print(genre)  # noqa: T201
     genres_1 = await service.search(page=1)
     genres_2 = await service.search(page=2)
