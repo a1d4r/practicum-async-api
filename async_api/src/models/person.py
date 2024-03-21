@@ -1,5 +1,4 @@
 from models.base import UUIDBase
-from pydantic import Field
 
 
 class PersonFilmRoles(UUIDBase):
@@ -9,7 +8,7 @@ class PersonFilmRoles(UUIDBase):
 
 
 class Person(UUIDBase):
-    """Модель для хранения актёра."""
+    """Модель для хранения информации об актёре."""
 
-    full_name: str = Field(alias="name")
+    full_name: str
     films: list[PersonFilmRoles]

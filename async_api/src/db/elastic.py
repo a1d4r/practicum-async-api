@@ -4,5 +4,5 @@ from elasticsearch import AsyncElasticsearch
 es = AsyncElasticsearch(settings.elasticsearch_host)
 
 
-async def get_elastic() -> AsyncElasticsearch:
+def get_elastic() -> AsyncElasticsearch:
     return es
