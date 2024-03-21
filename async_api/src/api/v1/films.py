@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -8,7 +9,7 @@ router = APIRouter()
 
 
 class Film(BaseModel):
-    id: str
+    id: UUID
     title: str
 
 

@@ -5,7 +5,7 @@ class Genre(UUIDBase):
     """Модель для хранения информации жанре в кинопроизведении."""
 
     name: str
-    description: str
+    description: str | None = None
 
 
 class GenreMinimal(UUIDBase):
