@@ -1,4 +1,4 @@
-from typing import Any, dict, list
+from typing import Any, dict, list, Optional, Union
 
 from functools import lru_cache
 
@@ -33,11 +33,11 @@ class FilmService:
 
     def get_all_films_from_elasticsearch(
         self,
-        page_size=10,
-        page=1,
-        sort_by="title",
-        genre=None,
-        query=None,
+        page_size: int = 10,
+        page: int = 1,
+        sort_by: str = "title",
+        genre: Union[str, None] = None,
+        query: Union[str, None] = None,
     ):
         films = Search(get_elastic())
         if not films:
@@ -54,7 +54,7 @@ class FilmService:
         return [hit.to_dict() for hit in response.hits]
 
     @staticmethod
-    async def get_film_by_id(self, film_id: str) -> FilmWork | None:
+    async def get_film_by_id(self, film_id: str) -> Optional[FilmWork] | None:
         film = await self._film_from_work_cache(film_id)
         if not film:
             film = await self._get_film_from_elasticsearch(film_id)
@@ -86,7 +86,7 @@ class FilmService:
 
         return FilmWork.parse_raw(data)
 
-    async def _films_from_cache(self, **kwargs) -> list[FilmWork]:
+    async def _films_from_cache(self, **kwargs: dict[str, Any]) -> list[FilmWork]:
         key = await get_key_by_args(**kwargs)
         data = await self.redis.get(key)
         if not data:
@@ -98,7 +98,7 @@ class FilmService:
     async def _put_film_to_cache(self, film: FilmWork) -> None:
         await self.redis.set(film.id, film, FILM_CACHE_EXPIRE_IN_SECONDS)
 
-    async def _put_films_to_cache(self, films: list[FilmWork], **search_params):
+    async def _put_films_to_cache(self, films: list[FilmWork], **search_params: dict[str, Any]):
         key = await get_key_by_args(**search_params)
         films_data = [film.dict(by_alias=True) for film in films]
         await self.redis.set(key, films_data, ex=FILM_CACHE_EXPIRE_IN_SECONDS)
