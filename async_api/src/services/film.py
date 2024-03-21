@@ -1,18 +1,16 @@
+from typing import Any, dict, list
+
 from functools import lru_cache
 
 from db.elastic import get_elastic
 from db.redis import get_redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
+from elasticsearch_dsl import Document, Search
 from fastapi import Depends
 from loguru import logger
-from typing import List, Type
-
-
-from models.film import FilmWork, FilmMinimal, FilmShort, FilmWorkMinimal
+from models.film import FilmWork
 from redis.asyncio import Redis
 from services.utils import get_key_by_args
-
-from elasticsearch_dsl import Search, Document
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
@@ -24,21 +22,26 @@ class FilmService:
         self.redis = redis
         self.elastic = elastic
 
-    async def all_films(self, **kwargs) -> list[FilmWork]:
-        films = await self._films_work_from_cache(**kwargs)
+    async def all_films(self, **kwargs: dict[str, Any]) -> list[FilmWork]:
+        films = await self._films_from_cache(**kwargs)
         if not films:
-            films = await self._get_films_from_elastic(FilmWork)
+            films = await self._get_films_from_elasticsearch(FilmWork)
             if not films:
                 return []
             await self._put_films_to_cache(FilmWork)
         return films
 
     def get_all_films_from_elasticsearch(
-        page_size=10, page=1, sort_by="title", genre=None, query=None
+        self,
+        page_size=10,
+        page=1,
+        sort_by="title",
+        genre=None,
+        query=None,
     ):
         films = Search(get_elastic())
         if not films:
-            return
+            return None
         if genre:
             films = films.filter("term", genre=genre)
 
@@ -47,9 +50,8 @@ class FilmService:
 
         films = films.sort({sort_by: {"order": "asc"}})
         response = films[(page - 1) * page_size : page * page_size].execute()
-        films = [hit.to_dict() for hit in response.hits]
 
-        return films
+        return [hit.to_dict() for hit in response.hits]
 
     @staticmethod
     async def get_film_by_id(self, film_id: str) -> FilmWork | None:
@@ -69,13 +71,13 @@ class FilmService:
             return None
         return FilmWork(**doc["_source"])
 
-    async def _get_films_from_elasticsearch(self, model: Type[Document]) -> List[Document]:
+    async def _get_films_from_elasticsearch(self, model: Document) -> list[Document]:
         try:
-            films_work_search = Search(index="movies").using(get_elastic())
-            films_work_response = films_work_search.execute()
+            films_search = Search(index="movies").using(get_elastic()).doc_type(model)
+            films_response = films_search.execute()
         except NotFoundError:
             return None
-        return [hit for hit in films_work_response]
+        return [hit for hit in films_response]
 
     async def _film_from_cache(self, film_id: str) -> FilmWork | None:
         data = await self.redis.get(f"films:{film_id}")
@@ -83,16 +85,6 @@ class FilmService:
             return None
 
         return FilmWork.parse_raw(data)
-
-    async def _film_from_cache(self, film_id: str) -> FilmWork:
-        data = await self.redis.get(film_id)
-        if not data:
-            logger.debug(f"The film was not found in the cache (id: {film_id})")
-            return None
-
-        film = FilmWork.parse_raw(data)
-
-        return film
 
     async def _films_from_cache(self, **kwargs) -> list[FilmWork]:
         key = await get_key_by_args(**kwargs)
