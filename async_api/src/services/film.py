@@ -1,4 +1,4 @@
-from typing import Any, dict, list, Optional, Union
+from typing import Any, dict, list
 
 from functools import lru_cache
 
@@ -36,9 +36,9 @@ class FilmService:
         page_size: int = 10,
         page: int = 1,
         sort_by: str = "title",
-        genre: Union[str, None] = None,
-        query: Union[str, None] = None,
-    ):
+        genre: str | None = None,
+        query: str | None = None,
+    ) -> dict | None:
         films = Search(get_elastic())
         if not films:
             return None
@@ -54,9 +54,10 @@ class FilmService:
         return [hit.to_dict() for hit in response.hits]
 
     @staticmethod
-    async def get_film_by_id(self, film_id: str) -> Optional[FilmWork] | None:
-        film = await self._film_from_work_cache(film_id)
-        if not film:
+    async def get_film_by_id(self, film_id: str) -> FilmWork | None:
+        try:
+            film = await self._film_from_work_cache(film_id)
+        except NotFoundError:
             film = await self._get_film_from_elasticsearch(film_id)
             if not film:
                 return None
@@ -64,7 +65,7 @@ class FilmService:
 
         return film
 
-    async def _get_film_from_elasticsearch(self, film_id: str) -> FilmWork | None:
+    async def _get_film_from_elasticsearch(self, film_id: str) -> FilmWork:
         try:
             doc = await self.elastic.get(index="movies", id=film_id)
         except NotFoundError:
@@ -98,10 +99,10 @@ class FilmService:
     async def _put_film_to_cache(self, film: FilmWork) -> None:
         await self.redis.set(film.id, film, FILM_CACHE_EXPIRE_IN_SECONDS)
 
-    async def _put_films_to_cache(self, films: list[FilmWork], **search_params: dict[str, Any]):
+    async def _put_films_to_cache(self, films: list[FilmWork], **search_params: str | Any) -> None:
         key = await get_key_by_args(**search_params)
         films_data = [film.dict(by_alias=True) for film in films]
-        await self.redis.set(key, films_data, ex=FILM_CACHE_EXPIRE_IN_SECONDS)
+        await self.redis.set(key, str(films_data), ex=FILM_CACHE_EXPIRE_IN_SECONDS)
 
 
 @lru_cache
