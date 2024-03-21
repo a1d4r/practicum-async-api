@@ -7,10 +7,8 @@ from db.redis import get_redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch_dsl import Document, Search
 from fastapi import Depends
-from loguru import logger
 from models.film import Film
 from redis.asyncio import Redis
-from services.utils import get_key_by_args
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
@@ -18,17 +16,14 @@ FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 class FilmService:
     """Сервис для хранения и получения данных о фильме через Redis и Elasticsearch."""
 
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
+    def __init__(self, elastic: AsyncElasticsearch):
         self.elastic = elastic
 
     async def all_films(self, **kwargs: dict[str, Any]) -> list[Film]:
-        films = await self._films_from_cache(**kwargs)
+        films = await self._get_films_from_elasticsearch(**kwargs)
         if not films:
-            films = await self._get_films_from_elasticsearch(**kwargs)
-            if not films:
-                return []
-            await self._put_films_to_cache(films, **kwargs)
+            return []
+
         return films
 
     def get_all_films_from_elasticsearch(
@@ -55,13 +50,9 @@ class FilmService:
 
     @staticmethod
     async def get_film_by_id(self, film_id: str) -> Film | None:
-        try:
-            film = await self._film_from_work_cache(film_id)
-        except NotFoundError:
-            film = await self._get_film_from_elasticsearch(film_id)
-            if not film:
-                return None
-            await self._put_film_to_cache(film)
+        film = await self._get_film_from_elasticsearch(film_id)
+        if not film:
+            return None
 
         return film
 
@@ -70,51 +61,19 @@ class FilmService:
             doc = await self.elastic.get(index="movies", id=film_id)
         except NotFoundError:
             return None
-        return Film(**doc["_source"])
+        return Film.model_validate(doc["_source"])
 
     async def _get_films_from_elasticsearch(self, model: Document) -> list[Document]:
-        try:
-            films_search = Search(index="movies").using(get_elastic()).doc_type(model)
-            films_response = films_search.execute()
-        except NotFoundError:
+        films_search = Search(index="movies").using(get_elastic()).doc_type(model)
+        if not films_search:
             return None
+        films_response = films_search.execute()
+
         return list(films_response)
-
-    async def _film_from_cache(self, film_id: str) -> Film | None:
-        data = await self.redis.get(f"films:{film_id}")
-        if not data:
-            return None
-
-        return Film.parse_raw(data)
-
-    async def _films_from_cache(self, **kwargs: dict[str, Any]) -> list[Film]:
-        key = await get_key_by_args(**kwargs)
-        if not key:
-            logger.debug("Key not found in the cache")
-            return None
-        data = await self.redis.get(key)
-        if not data:
-            logger.debug("Film was not found in the cache")
-            return None
-
-        return [Film.parse_raw(item) for item in data]
-
-    async def _put_film_to_cache(self, film: Film) -> None:
-        await self.redis.set(film.id, str(film), FILM_CACHE_EXPIRE_IN_SECONDS)
-
-    async def _put_films_to_cache(self, films: list[Film], **search_params: str | Any) -> None:
-        key = await get_key_by_args(**search_params)
-        if not key:
-            return
-        films_data = [film.dict(by_alias=True) for film in films]
-        if not films_data:
-            return
-        await self.redis.set(key, str(films_data), ex=FILM_CACHE_EXPIRE_IN_SECONDS)
 
 
 @lru_cache
 def get_film_service(
-    redis: Redis = Depends(get_redis),
     elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> FilmService:
-    return FilmService(redis, elastic)
+    return FilmService(elastic)
