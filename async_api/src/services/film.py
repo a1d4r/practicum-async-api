@@ -3,12 +3,11 @@ from typing import Any
 from functools import lru_cache
 
 from db.elastic import get_elastic
-from db.redis import get_redis
+
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch_dsl import Document, Search
 from fastapi import Depends
 from models.film import Film
-from redis.asyncio import Redis
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
