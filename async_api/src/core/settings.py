@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     # elasticsearch
     es_genres_index: str = "genres"
+    es_persons_index: str = "persons"
 
 
 settings = Settings(_env_file=PROJECT_ROOT / ".env")

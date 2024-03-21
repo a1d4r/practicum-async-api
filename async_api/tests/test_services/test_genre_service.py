@@ -1,7 +1,17 @@
 from uuid import UUID
 
+import pytest
 
-async def test_get_by_id(genre_service):
+from models.genre import Genre
+from services.genre import GenreService
+
+
+@pytest.fixture()
+async def genre_service(elastic):
+    return GenreService(elastic)
+
+
+async def test_get_genre_by_id(genre_service):
     # Arrange
     action_genre_id = UUID("3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff")
 
@@ -24,3 +34,4 @@ async def test_search_genres(genre_service):
 
     # Assert
     assert len(genres) == size
+    assert all(isinstance(genre, Genre) for genre in genres)
