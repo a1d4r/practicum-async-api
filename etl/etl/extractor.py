@@ -255,10 +255,13 @@ class PostgresExtractor:
                 SELECT
                     person_id,
                     film_work_id,
+                    title,
+                    rating,
                     array_agg(role) AS roles
-                FROM content.person_film_work
+                FROM content.person_film_work pfw
+                LEFT JOIN content.film_work fw ON fw.id = pfw.film_work_id
                 WHERE person_id = ANY(%(persons_ids)s)
-                GROUP BY (person_id, film_work_id)
+                GROUP BY (person_id, film_work_id, title, rating)
                 """,
                 ({"persons_ids": [person.id for person in persons]}),
             )

@@ -55,6 +55,12 @@
           "id": {
             "type": "keyword"
           },
+          "title": {
+            "type": "text"
+          },
+          "imdb_rating": {
+            "type": "float"
+          },
           "roles": {
             "type": "keyword"
           }

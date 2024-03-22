@@ -23,8 +23,14 @@ async def test_get_person_by_id(person_service: PersonService):
     assert person.id == george_lucas_id
     assert person.full_name == "George Lucas"
     assert len(person.films) == 46
-    assert person.films[0].id == UUID("516f91da-bd70-4351-ba6d-25e16b7713b7")
-    assert person.films[0].roles == ["director", "writer"]
+    person_film = next(
+        (film for film in person.films if film.id == UUID("516f91da-bd70-4351-ba6d-25e16b7713b7")),
+        None,
+    )
+    assert person_film is not None
+    assert person_film.title == "Star Wars: Episode III - Revenge of the Sith"
+    assert person_film.imdb_rating == 7.5
+    assert set(person_film.roles) == {"director", "writer"}
 
 
 async def test_search_persons(person_service: PersonService):
@@ -50,8 +56,15 @@ async def test_search_persons_with_query(person_service: PersonService):
 
     # Assert
     person = persons[0]
+    assert person is not None
     assert person.id == george_lucas_id
     assert person.full_name == "George Lucas"
     assert len(person.films) == 46
-    assert person.films[0].id == UUID("516f91da-bd70-4351-ba6d-25e16b7713b7")
-    assert person.films[0].roles == ["director", "writer"]
+    person_film = next(
+        (film for film in person.films if film.id == UUID("516f91da-bd70-4351-ba6d-25e16b7713b7")),
+        None,
+    )
+    assert person_film is not None
+    assert person_film.title == "Star Wars: Episode III - Revenge of the Sith"
+    assert person_film.imdb_rating == 7.5
+    assert set(person_film.roles) == {"director", "writer"}
