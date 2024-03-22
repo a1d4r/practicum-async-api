@@ -1,4 +1,4 @@
-from typing import NewType
+from typing import NewType, list
 
 from functools import lru_cache
 
@@ -21,13 +21,13 @@ class FilmService:
         self.elastic = elastic
 
     async def films(self, **kwargs: dict[str, str]) -> list[Film]:
-        films = await self._get_films_from_elasticsearch(**kwargs)
+        films = await self.get_films_from_elasticsearch(**kwargs)
         if not films:
             return []
 
         return films
 
-    def get_all_films_from_elasticsearch(
+    def get_films_from_elasticsearch(
         self,
         page_size: int = 10,
         page: int = 1,
@@ -50,7 +50,7 @@ class FilmService:
                                     {"term": {"genre": genre}},
                                     {"match": {"title": query}},
                                 ]
-                            }
+                            },
                         },
                         "sort": [{"{sort_by}": {sort_order}}],
                         "from": (page - 1) * page_size,
@@ -75,30 +75,18 @@ class FilmService:
         return [hit.to_dict() for hit in films]
 
     async def get_film_by_id(self, film_id: FilmID) -> Film | None:
-        film = await self._get_film_from_elasticsearch(film_id)
+        film = await self.get_film_from_elasticsearch(film_id)
         if not film:
             return None
 
         return film
 
-    async def _get_film_from_elasticsearch(self, film_id: FilmID) -> Film:
+    async def get_film_from_elasticsearch(self, film_id: FilmID) -> Film:
         try:
             doc = await self.elastic.get(index="movies", id=film_id)
         except NotFoundError:
             return None
         return Film.model_validate(doc["_source"])
-
-    async def _get_films_from_elasticsearch(self, model: Film) -> list[Film]:
-        films_response = []
-        films_search = {"query": {"match_all": {}}}
-        if not films_search:
-            return None
-        try:
-            films_response = await self.es.search(index="movies", body=films_search, doc_type=model)
-        except Exception as e:
-            print(e)
-            return None
-        return list(films_response)
 
 
 @lru_cache
