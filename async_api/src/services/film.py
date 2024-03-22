@@ -50,3 +50,7 @@ class FilmService:
         except NotFoundError:
             return None
         return Film.model_validate(doc["_source"])
+
+
+def get_film_service() -> None:
+    return None
