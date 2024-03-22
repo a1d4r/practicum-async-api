@@ -15,8 +15,6 @@ FilmID = NewType("FilmID", UUID)
 
 @dataclass
 class FilmService:
-    """Сервис для хранения и получения данных о фильме через Redis и Elasticsearch."""
-
     elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
 
     async def search(
