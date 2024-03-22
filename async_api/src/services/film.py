@@ -1,14 +1,12 @@
-from typing import NewType, list
+from typing import NewType, dict, list
 
 from functools import lru_cache
+from uuid import UUID
 
 from db.elastic import get_elastic
-
 from elasticsearch import AsyncElasticsearch, NotFoundError
-
 from fastapi import Depends
 from models.film import Film
-from uuid import UUID
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 FilmID = NewType("FilmID", UUID)
@@ -49,7 +47,7 @@ class FilmService:
                                 "filter": [
                                     {"term": {"genre": genre}},
                                     {"match": {"title": query}},
-                                ]
+                                ],
                             },
                         },
                         "sort": [{"{sort_by}": {sort_order}}],
@@ -75,7 +73,7 @@ class FilmService:
         return [hit.to_dict() for hit in films]
 
     async def get_film_by_id(self, film_id: FilmID) -> Film | None:
-        film = await self.get_film_from_elasticsearch(film_id)
+        film = await self.get_film_from_elasticsearch(FilmID(film_id))
         if not film:
             return None
 
@@ -83,7 +81,7 @@ class FilmService:
 
     async def get_film_from_elasticsearch(self, film_id: FilmID) -> Film:
         try:
-            doc = await self.elastic.get(index="movies", id=film_id)
+            doc = await self.elastic.get(index="movies", id=str(film_id))
         except NotFoundError:
             return None
         return Film.model_validate(doc["_source"])
