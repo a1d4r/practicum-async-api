@@ -1,8 +1,9 @@
-from typing import NewType, dict, list
+from typing import Annotated, NewType
 
-from functools import lru_cache
+from dataclasses import dataclass
 from uuid import UUID
 
+from core.settings import settings
 from db.elastic import get_elastic
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
@@ -12,83 +13,42 @@ FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 FilmID = NewType("FilmID", UUID)
 
 
+@dataclass
 class FilmService:
     """Сервис для хранения и получения данных о фильме через Redis и Elasticsearch."""
 
-    def __init__(self, elastic: AsyncElasticsearch):
-        self.elastic = elastic
+    elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
 
-    async def films(self, **kwargs: dict[str, str]) -> list[Film]:
-        films = await self.get_films_from_elasticsearch(**kwargs)
-        if not films:
-            return []
-
-        return films
-
-    def get_films_from_elasticsearch(
+    async def search(
         self,
-        page_size: int = 10,
+        *,
+        query: str | None = None,
         page: int = 1,
+        size: int = settings.default_page_size,
         sort_order: str = "asc",
         genre: str | None = None,
-        query: str | None = None,
-    ) -> dict | None:
-        films = []
-        if not self.elastic:
-            return None
+    ) -> list[Film]:
         if genre:
-            films = [
-                hit
-                for hit in self.elastic.search(
-                    index="movies",
-                    body={
-                        "query": {
-                            "bool": {
-                                "filter": [
-                                    {"term": {"genre": genre}},
-                                    {"match": {"title": query}},
-                                ],
-                            },
-                        },
-                        "sort": [{"{sort_by}": {sort_order}}],
-                        "from": (page - 1) * page_size,
-                        "size": page_size,
-                    },
-                ).hits
-            ]
+            result = await self.elastic.search(
+                index=settings.es_films_index,
+                from_=(page - 1) * size,
+                size=size,
+                query={"match": {"title": query}} if query else {"match_all": {}},
+            )
         else:
-            films = [
-                hit
-                for hit in self.elastic.search(
-                    index="movies",
-                    body={
-                        "query": {"match_all": {}},
-                        "sort": [{"{sort_by}": {sort_order}}],
-                        "from": (page - 1) * page_size,
-                        "size": page_size,
-                    },
-                ).hits
-            ]
+            result = await self.elastic.search(
+                index=settings.es_films_index,
+                from_=(page - 1) * size,
+                size=size,
+                query={"match": {"title": query}} if query else {"match_all": {}},
+                sort=sort_order,
+            )
 
-        return [hit.to_dict() for hit in films]
+        return [Film.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
 
-    async def get_film_by_id(self, film_id: FilmID) -> Film | None:
-        film = await self.get_film_from_elasticsearch(FilmID(film_id))
-        if not film:
-            return None
-
-        return film
-
-    async def get_film_from_elasticsearch(self, film_id: FilmID) -> Film:
+    async def get_by_id(self, film_id: FilmID) -> Film | None:
         try:
             doc = await self.elastic.get(index="movies", id=str(film_id))
         except NotFoundError:
             return None
         return Film.model_validate(doc["_source"])
-
-
-@lru_cache
-def get_film_service(
-    elastic: AsyncElasticsearch = Depends(get_elastic),
-) -> FilmService:
-    return FilmService(elastic)

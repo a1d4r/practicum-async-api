@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     elasticsearch_host: str
     es_genres_index: str = "genres"
     es_persons_index: str = "persons"
+    es_films_index: str = "movies"
 
     # pagination
     default_page_size: int = 50
