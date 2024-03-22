@@ -84,7 +84,12 @@ def build_persons_elasticsearch_records(
             id=person_info.id,
             full_name=person_info.full_name,
             films=[
-                dto.FilmWorkMinimalElasticsearchRecord(id=film.film_work_id, roles=film.roles)
+                dto.PersonFilmWorkElasticsearchRecord(
+                    id=film.film_work_id,
+                    title=film.title,
+                    imdb_rating=film.rating,
+                    roles=film.roles,
+                )
                 for film in films_by_person_id[person_info.id]
             ],
         )

@@ -4,7 +4,7 @@ from uuid import UUID
 __all__ = [
     "BaseElasticsearchRecord",
     "PersonMinimalElasticsearchRecord",
-    "FilmWorkMinimalElasticsearchRecord",
+    "PersonFilmWorkElasticsearchRecord",
     "GenreElasticsearchRecord",
     "PersonElasticsearchRecord",
     "FilmWorkElasticsearchRecord",
@@ -26,9 +26,13 @@ class PersonMinimalElasticsearchRecord(BaseElasticsearchRecord):
 
 
 @dataclass
-class FilmWorkMinimalElasticsearchRecord(BaseElasticsearchRecord):
-    """Модель для хранения краткой информации о кинопроизведении в индексе Elasticsearch."""
+class PersonFilmWorkElasticsearchRecord(BaseElasticsearchRecord):
+    """Модель для хранения информации о кинопроизведении,
+    в котором участвовала персона, в индексе Elasticsearch.
+    """
 
+    title: str
+    imdb_rating: float
     roles: list[str]
 
 
@@ -45,7 +49,7 @@ class PersonElasticsearchRecord(BaseElasticsearchRecord):
     """Модель для хранения информации о персоне в индексе Elasticsearch."""
 
     full_name: str
-    films: list[FilmWorkMinimalElasticsearchRecord]
+    films: list[PersonFilmWorkElasticsearchRecord]
 
 
 @dataclass
