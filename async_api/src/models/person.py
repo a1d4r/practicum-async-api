@@ -1,9 +1,11 @@
 from models.base import UUIDBase
 
 
-class PersonFilmRoles(UUIDBase):
-    """Модель для хранения информации о ролях актёра в фильме."""
+class PersonFilm(UUIDBase):
+    """Модель для хранения информации о фильме, в котором участвовал актёр."""
 
+    title: str
+    imdb_rating: float
     roles: list[str]
 
 
@@ -11,4 +13,4 @@ class Person(UUIDBase):
     """Модель для хранения информации об актёре."""
 
     full_name: str
-    films: list[PersonFilmRoles]
+    films: list[PersonFilm]
