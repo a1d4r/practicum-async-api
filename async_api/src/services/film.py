@@ -23,8 +23,8 @@ class FilmService:
         query: str | None = None,
         page: int = 1,
         size: int = settings.default_page_size,
-        sort_order: str = "imdb_rating",
-        sort_by: str | None = None,
+        sort_order: str | None = None,
+        sort_by: str = "imdb_rating",
     ) -> list[Film]:
         if sort_by:
             result = await self.elastic.search(
