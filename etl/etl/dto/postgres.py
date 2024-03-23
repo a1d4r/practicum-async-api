@@ -64,6 +64,8 @@ class PersonFilmWorkRecord:
 
     person_id: UUID
     film_work_id: UUID
+    title: str
+    rating: float
     roles: list[str]
 
 
