@@ -23,25 +23,17 @@ class FilmService:
         query: str | None = None,
         page: int = 1,
         size: int = settings.default_page_size,
-        sort_order: str | None = None,
-        sort_by: str = "imdb_rating",
+        sort_order: str | None = "asc",
+        sort_by: str = "id",
+        genre: str = "Action",
     ) -> list[Film]:
-        if sort_by:
-            result = await self.elastic.search(
-                index=settings.es_films_index,
-                from_=(page - 1) * size,
-                size=size,
-                query={"match": {"title": query}} if query else {"match_all": {}},
-                sort={sort_by: {"order": sort_order}},
-            )
-        else:
-            result = await self.elastic.search(
-                index=settings.es_films_index,
-                from_=(page - 1) * size,
-                size=size,
-                query={"match": {"title": query}} if query else {"match_all": {}},
-                sort=sort_order,
-            )
+        result = await self.elastic.search(
+            index=settings.es_films_index,
+            from_=(page - 1) * size,
+            size=size,
+            query={"match": {"title": query}} if query else {"match_all": {}},
+            sort={sort_by: {"order": sort_order, "genre": genre}},
+        )
 
         return [Film.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
 
