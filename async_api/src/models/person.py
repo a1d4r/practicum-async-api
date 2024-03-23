@@ -12,3 +12,7 @@ class Person(UUIDBase):
 
     full_name: str
     films: list[PersonFilmRoles]
+
+
+class PersonName(UUIDBase):
+    name: str

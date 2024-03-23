@@ -21,18 +21,19 @@ async def test_search_film_by_id(film_service):
     assert film is not None
     assert film.id == star_wars_id
     assert film.title == "Star Wars"
-    assert film.imdb_rating == 6.6
     assert (
         film.description
         == "Luke Skywalker, a young farmer from the desert planet of Tattooine, must save Princess Leia from the evil Darth Vader."
     )
-    assert film.genre == ["Action", "Fantasy", "Adventure"]
+    assert film.director == []
+    assert film.actors_names == []
+    assert film.writers_names == ["George Lucas"]
     assert film.actors == []
-    assert film.writers == [{"id": "a5a8f573-3cee-4ccc-8a2b-91cb9f55250a", "name": "George Lucas"}]
-    assert film.directors == []
+    assert film.writers[0].id == UUID("a5a8f573-3cee-4ccc-8a2b-91cb9f55250a")
+    assert film.writers[0].name == "George Lucas"
 
 
-async def test_search_films(film_service):
+async def test_search_persons(film_service: FilmService):
     # Arrange
     page = 2
     size = 5

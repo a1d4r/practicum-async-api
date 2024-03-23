@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from models.base import UUIDBase
-from models.person import Person
+from models.person import Person, PersonName
 
 
 @dataclass
@@ -9,12 +9,12 @@ class Film(UUIDBase):
     """Модель для хранения информации о фильме."""
 
     title: str
-    imdb_rating: float
     description: str | None
-    genre: list[str]
-    actors: list[Person] | None
-    writers: list[Person] | None
-    directors: list[Person] | None
+    director: list[str] | None
+    actors_names: list[str]
+    writers_names: list[str]
+    actors: list[PersonName]
+    writers: list[PersonName]
 
 
 class FilmMinimal(UUIDBase):
