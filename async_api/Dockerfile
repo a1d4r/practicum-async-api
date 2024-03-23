@@ -81,6 +81,7 @@ RUN --mount=type=cache,target=/root/.cache \
 # will become mountpoint of our code
 WORKDIR /app
 
+EXPOSE 8000
 CMD ["uvicorn", "--app-dir", "src", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 
@@ -92,4 +93,6 @@ FROM python-base as production
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY ./src /app/src
 WORKDIR /app
-CMD ["uvicorn", "--app-dir", "src", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 8000
+CMD ["gunicorn", "--chdir", "src", "main:app", "--workers", "4",
+     "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
