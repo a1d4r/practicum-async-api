@@ -13,8 +13,6 @@ cp infra/postgres/.env.example infra/postgres/.env
 
 ## Запуск
 
-### Для разработки
-
 Запустить все сервисы разом можно следующей командой:
 
 ```bash
@@ -26,5 +24,3 @@ COMPOSE_PROFILES=infra,etl,api docker compose up -d
 ```bash
 COMPOSE_PROFILES=infra,etl,api docker compose down
 ```
-
-### Для
