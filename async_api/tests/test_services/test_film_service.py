@@ -20,6 +20,7 @@ async def test_search_film_by_id(film_service):
     # Assert
     assert film is not None
     assert film.id == star_wars_id
+    assert film.imdb_rating == 6.6
     assert film.title == "Star Wars"
     assert (
         film.description

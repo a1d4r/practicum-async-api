@@ -9,6 +9,7 @@ class Film(UUIDBase):
     """Модель для хранения информации о фильме."""
 
     title: str
+    imdb_rating: float | None
     description: str | None
     director: list[str] | None
     actors_names: list[str]
