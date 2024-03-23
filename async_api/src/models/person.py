@@ -14,3 +14,7 @@ class Person(UUIDBase):
 
     full_name: str
     films: list[PersonFilm]
+
+
+class PersonName(UUIDBase):
+    name: str

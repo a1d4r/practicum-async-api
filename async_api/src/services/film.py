@@ -1,51 +1,45 @@
-from functools import lru_cache
+from typing import Annotated, NewType
 
+from dataclasses import dataclass
+from uuid import UUID
+
+from core.settings import settings
 from db.elastic import get_elastic
-from db.redis import get_redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from models.film import Film
-from redis.asyncio import Redis
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
+FilmID = NewType("FilmID", UUID)
 
 
+@dataclass
 class FilmService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
-        self.elastic = elastic
+    elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
 
-    async def get_by_id(self, film_id: str) -> Film | None:
-        film = await self._film_from_cache(film_id)
-        if not film:
-            film = await self._get_film_from_elastic(film_id)
-            if not film:
-                return None
-            await self._put_film_to_cache(film)
+    async def search(
+        self,
+        *,
+        query: str | None = None,
+        page: int = 1,
+        size: int = settings.default_page_size,
+        sort_order: str = "asc",
+        sort_by: str = "id",
+        genre: str | None = "Action",
+    ) -> list[Film]:
+        result = await self.elastic.search(
+            index=settings.es_films_index,
+            from_=(page - 1) * size,
+            size=size,
+            query={"match": {"title": query, "genre": genre}} if query else {"match_all": {}},
+            sort={sort_by: {"order": sort_order}},
+        )
 
-        return film
+        return [Film.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
 
-    async def _get_film_from_elastic(self, film_id: str) -> Film | None:
+    async def get_by_id(self, film_id: FilmID) -> Film | None:
         try:
-            doc = await self.elastic.get(index="movies", id=film_id)
+            doc = await self.elastic.get(index=settings.es_films_index, id=str(film_id))
         except NotFoundError:
             return None
-        return Film(**doc["_source"])
-
-    async def _film_from_cache(self, film_id: str) -> Film | None:
-        data = await self.redis.get(film_id)
-        if not data:
-            return None
-
-        return Film.parse_raw(data)
-
-    async def _put_film_to_cache(self, film: Film) -> None:
-        await self.redis.set(str(film.id), film.json(), FILM_CACHE_EXPIRE_IN_SECONDS)
-
-
-@lru_cache
-def get_film_service(
-    redis: Redis = Depends(get_redis),
-    elastic: AsyncElasticsearch = Depends(get_elastic),
-) -> FilmService:
-    return FilmService(redis, elastic)
+        return Film.model_validate(doc["_source"])
