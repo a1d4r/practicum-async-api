@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from models.base import UUIDBase
-from models.genre import Genre
 from models.person import Person
 
 
@@ -11,11 +10,11 @@ class Film(UUIDBase):
 
     title: str
     imdb_rating: float
-    description: str
-    genre: list[Genre]
-    actors: list[Person]
-    writers: list[Person]
-    directors: list[Person]
+    description: str | None
+    genre: list[str]
+    actors: list[Person] | None
+    writers: list[Person] | None
+    directors: list[Person] | None
 
 
 class FilmMinimal(UUIDBase):

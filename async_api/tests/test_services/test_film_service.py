@@ -3,7 +3,7 @@ from uuid import UUID
 import pytest
 
 from models.film import Film
-from services.film import FilmService
+from services.film import FilmID, FilmService
 
 
 @pytest.fixture()
@@ -13,11 +13,10 @@ async def film_service(elastic):
 
 async def test_search_film_by_id(film_service):
     # Arrange
-    star_wars_id = UUID("c35dc09c-8ace-46be-8941-7e50b768ec33")
+    star_wars_id = FilmID(UUID("c35dc09c-8ace-46be-8941-7e50b768ec33"))
 
     # Act
     film = await film_service.get_by_id(star_wars_id)
-
     # Assert
     assert film is not None
     assert film.id == star_wars_id
@@ -39,7 +38,7 @@ async def test_search_films(film_service):
     size = 5
 
     # Act
-    films = await film_service.search(page, size)
+    films = await film_service.search(page=page, size=size)
 
     # Assert
     assert len(films) == size

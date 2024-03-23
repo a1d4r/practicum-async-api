@@ -23,15 +23,16 @@ class FilmService:
         query: str | None = None,
         page: int = 1,
         size: int = settings.default_page_size,
-        sort_order: str = "asc",
-        genre: str | None = None,
+        sort_order: str = "imdb_rating",
+        sort_by: str | None = None,
     ) -> list[Film]:
-        if genre:
+        if sort_by:
             result = await self.elastic.search(
                 index=settings.es_films_index,
                 from_=(page - 1) * size,
                 size=size,
                 query={"match": {"title": query}} if query else {"match_all": {}},
+                sort={sort_by: {"order": sort_order}},
             )
         else:
             result = await self.elastic.search(
@@ -46,11 +47,7 @@ class FilmService:
 
     async def get_by_id(self, film_id: FilmID) -> Film | None:
         try:
-            doc = await self.elastic.get(index="movies", id=str(film_id))
+            doc = await self.elastic.get(index=settings.es_films_index, id=str(film_id))
         except NotFoundError:
             return None
         return Film.model_validate(doc["_source"])
-
-
-def get_film_service() -> None:
-    return None
