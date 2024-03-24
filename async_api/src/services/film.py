@@ -1,16 +1,15 @@
-from typing import Annotated, NewType
+from typing import Annotated
 
 from dataclasses import dataclass
-from uuid import UUID
 
 from core.settings import settings
 from db.elastic import get_elastic
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from models.film import Film
+from models.value_objects import FilmID
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
-FilmID = NewType("FilmID", UUID)
 
 
 @dataclass

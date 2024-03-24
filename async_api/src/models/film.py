@@ -1,35 +1,23 @@
-from dataclasses import dataclass
-
-from models.base import UUIDBase
-from models.person import Person, PersonName
+from models.value_objects import FilmID, PersonID
+from pydantic import BaseModel
 
 
-@dataclass
-class Film(UUIDBase):
+class PersonIdName(BaseModel):
+    """Модель для хранения идентификатора и имени актёра."""
+
+    id: PersonID
+    name: str
+
+
+class Film(BaseModel):
     """Модель для хранения информации о фильме."""
 
+    id: FilmID
     title: str
     imdb_rating: float | None
     description: str | None
     director: list[str] | None
     actors_names: list[str]
     writers_names: list[str]
-    actors: list[PersonName]
-    writers: list[PersonName]
-
-
-class FilmMinimal(UUIDBase):
-    """Модель для хранения краткой информации о фильме."""
-
-    title: str
-    imdb_rating: float
-    description: str
-    writers: list[Person]
-    directors: list[Person]
-
-
-class FilmShort(UUIDBase):
-    """Модель для хранения краткой информации о фильме на главной странице."""
-
-    title: str
-    imdb_rating: float
+    actors: list[PersonIdName]
+    writers: list[PersonIdName]

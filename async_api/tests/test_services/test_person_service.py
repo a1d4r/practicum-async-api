@@ -3,6 +3,7 @@ from uuid import UUID
 import pytest
 
 from models.person import Person
+from models.value_objects import PersonID
 from services.person import PersonService
 
 
@@ -13,7 +14,7 @@ async def person_service(elastic):
 
 async def test_get_person_by_id(person_service: PersonService):
     # Arrange
-    george_lucas_id = UUID("a5a8f573-3cee-4ccc-8a2b-91cb9f55250a")
+    george_lucas_id = PersonID(UUID("a5a8f573-3cee-4ccc-8a2b-91cb9f55250a"))
 
     # Act
     person = await person_service.get_by_id(george_lucas_id)

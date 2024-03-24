@@ -1,20 +1,19 @@
-from models.base import UUIDBase
+from models.value_objects import FilmID, PersonID, Roles
+from pydantic import BaseModel
 
 
-class PersonFilm(UUIDBase):
+class PersonFilm(BaseModel):
     """Модель для хранения информации о фильме, в котором участвовал актёр."""
 
+    id: FilmID
     title: str
     imdb_rating: float
-    roles: list[str]
+    roles: list[Roles]
 
 
-class Person(UUIDBase):
+class Person(BaseModel):
     """Модель для хранения информации об актёре."""
 
+    id: PersonID
     full_name: str
     films: list[PersonFilm]
-
-
-class PersonName(UUIDBase):
-    name: str
