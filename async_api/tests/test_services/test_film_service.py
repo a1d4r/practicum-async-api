@@ -50,7 +50,7 @@ async def test_search_films(film_service: FilmService):
 
 async def test_search_films_by_genre(film_service: FilmService):
     # Act
-    films = await film_service.search(genre="Action")
+    films = await film_service.search_with_genre(genre="Action")
 
     # Assert
     assert len(films) is not None
