@@ -1,4 +1,4 @@
-from api.v1 import films, persons
+from api.v1 import films, genres, persons
 from core.settings import settings
 from db import elastic, redis
 from fastapi import FastAPI
@@ -25,3 +25,4 @@ async def shutdown() -> None:
 
 app.include_router(films.router, prefix="/v1/films", tags=["Фильмы"])
 app.include_router(persons.router, prefix="/v1/persons", tags=["Персоны"])
+app.include_router(genres.router, prefix="/v1/genres", tags=["Жанры"])
