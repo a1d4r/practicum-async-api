@@ -1,6 +1,6 @@
-from enum import auto, StrEnum
 from typing import NewType
 
+from enum import StrEnum, auto
 from uuid import UUID
 
 # Алиасы для идентификаторов
