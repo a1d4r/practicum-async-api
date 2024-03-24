@@ -62,12 +62,6 @@ class FilmService:
             return None
         return Film.model_validate(doc["_source"])
 
-    async def all(self) -> list[Film]:
-        result = await self.elastic.search(
-            query={"match_all": {}},
-        )
-        return [Film.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
-
 
 @lru_cache
 def get_film_service(

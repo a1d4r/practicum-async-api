@@ -11,11 +11,10 @@ from services.film import FilmService
 router = APIRouter()
 
 
-class FilmList(BaseModel):
+class FilmShort(BaseModel):
     uuid: FilmID = Field(..., validation_alias="id")
     title: str
     imdb_rating: float
-    genre: list[str] | None
 
 
 class FilmDetails(BaseModel):
@@ -38,9 +37,15 @@ class FilmDetails(BaseModel):
 )
 async def film_list(
     film_service: Annotated[FilmService, Depends()],
-) -> list[FilmDetails]:
-    films = await film_service.all()
-    return [FilmDetails.model_validate(film.model_dump()) for film in films]
+    pagination_params: Annotated[PaginationParams, Depends()],
+    query: str | None = None,
+) -> list[FilmShort]:
+    films = await film_service.search(
+        query=query,
+        page=pagination_params.page_number,
+        size=pagination_params.page_size,
+    )
+    return [FilmShort.model_validate(film.model_dump()) for film in films]
 
 
 @router.get(
@@ -54,31 +59,13 @@ async def film_search(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
     query: str | None = None,
-) -> list[FilmDetails]:
+) -> list[FilmShort]:
     films = await film_service.search(
         query=query,
         page=pagination_params.page_number,
         size=pagination_params.page_size,
     )
-    return [FilmDetails.model_validate(film.model_dump()) for film in films]
-
-
-@router.get(
-    "/search/genre",
-    response_model=list[FilmDetails],
-    response_description="Список фильмов по жанрам",
-    status_code=status.HTTP_200_OK,
-    summary="Поиск фильмов по жанрам",
-)
-async def film_search_genre(
-    film_service: Annotated[FilmService, Depends()],
-    pagination_params: Annotated[PaginationParams, Depends],
-) -> list[FilmDetails]:
-    films = await film_service.search_with_genre(
-        page=pagination_params.page_number,
-        size=pagination_params.page_size,
-    )
-    return [FilmDetails.model_validate(film.model_dump()) for film in films]
+    return [FilmShort.model_validate(film.model_dump()) for film in films]
 
 
 @router.get(
