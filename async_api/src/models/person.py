@@ -1,4 +1,5 @@
-from models.value_objects import FilmID, PersonID
+from models.value_objects import FilmID, PersonID, Roles
+
 from pydantic import BaseModel
 
 
@@ -8,7 +9,7 @@ class PersonFilm(BaseModel):
     id: FilmID
     title: str
     imdb_rating: float
-    roles: list[str]
+    roles: list[Roles]
 
 
 class Person(BaseModel):
