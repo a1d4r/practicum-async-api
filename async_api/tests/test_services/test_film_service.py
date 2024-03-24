@@ -12,7 +12,7 @@ async def film_service(elastic):
     return FilmService(elastic)
 
 
-async def test_search_film_by_id(film_service: FilmService):
+async def test_search_film_by_id(film_service):
     # Arrange
     star_wars_id = FilmID(UUID("c35dc09c-8ace-46be-8941-7e50b768ec33"))
 
