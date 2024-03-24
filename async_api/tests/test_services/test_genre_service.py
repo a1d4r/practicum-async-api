@@ -25,14 +25,10 @@ async def test_get_genre_by_id(genre_service: GenreService):
     assert genre.name == "Action"
 
 
-async def test_search_genres(genre_service: GenreService):
-    # Arrange
-    page = 2
-    size = 5
-
+async def test_get_all_genres(genre_service: GenreService):
     # Act
-    genres = await genre_service.search(page, size)
+    genres = await genre_service.get_all()
 
     # Assert
-    assert len(genres) == size
+    assert len(genres) == 10
     assert all(isinstance(genre, Genre) for genre in genres)

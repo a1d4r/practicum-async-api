@@ -21,15 +21,8 @@ class GenreService:
             return None
         return Genre.model_validate(doc["_source"])
 
-    async def search(
-        self,
-        page: int = 1,
-        size: int = settings.default_page_size,
-    ) -> list[Genre]:
+    async def get_all(self) -> list[Genre]:
         result = await self.elastic.search(
-            index=settings.es_genres_index,
-            from_=(page - 1) * size,
-            size=size,
             query={"match_all": {}},
         )
         return [Genre.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
