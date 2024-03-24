@@ -3,7 +3,8 @@ from uuid import UUID
 import pytest
 
 from models.film import Film
-from services.film import FilmID, FilmService
+from models.value_objects import FilmID
+from services.film import FilmService
 
 
 @pytest.fixture()
@@ -11,7 +12,7 @@ async def film_service(elastic):
     return FilmService(elastic)
 
 
-async def test_search_film_by_id(film_service):
+async def test_search_film_by_id(film_service: FilmService):
     # Arrange
     star_wars_id = FilmID(UUID("c35dc09c-8ace-46be-8941-7e50b768ec33"))
 

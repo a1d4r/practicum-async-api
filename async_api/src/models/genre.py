@@ -1,14 +1,10 @@
-from models.base import UUIDBase
+from models.value_objects import GenreID
+from pydantic import BaseModel
 
 
-class Genre(UUIDBase):
+class Genre(BaseModel):
     """Модель для хранения информации жанре в кинопроизведении."""
 
+    id: GenreID
     name: str
     description: str | None = None
-
-
-class GenreMinimal(UUIDBase):
-    """Модель для хранения краткой информации о жанре."""
-
-    name: str

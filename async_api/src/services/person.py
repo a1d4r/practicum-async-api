@@ -1,22 +1,20 @@
-from typing import Annotated, NewType
+from typing import Annotated
 
 from dataclasses import dataclass
-from uuid import UUID
 
 from core.settings import settings
 from db.elastic import get_elastic
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from models.person import Person
-
-PersonID = NewType("PersonID", UUID)
+from models.value_objects import PersonID
 
 
 @dataclass
 class PersonService:
     elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
 
-    async def get_by_id(self, person_id: UUID) -> Person | None:
+    async def get_by_id(self, person_id: PersonID) -> Person | None:
         try:
             doc = await self.elastic.get(index=settings.es_persons_index, id=str(person_id))
         except NotFoundError:
