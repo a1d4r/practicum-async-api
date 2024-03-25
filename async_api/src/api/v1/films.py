@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from api.dependencies import PaginationParams
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from models.genre import Genre
 from models.person import Person
 from models.value_objects import FilmID
@@ -30,7 +30,7 @@ class FilmDetails(BaseModel):
 
 @router.get(
     "/",
-    response_model=list[FilmDetails],
+    response_model=list[FilmShort],
     response_description="Список фильмов",
     status_code=status.HTTP_200_OK,
     summary="Получить список всех фильмов",
@@ -38,19 +38,21 @@ class FilmDetails(BaseModel):
 async def film_list(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
-    query: str | None = None,
+    sort_by: str = Query(""),
+    genre: str = Query(""),
 ) -> list[FilmShort]:
-    films = await film_service.search(
-        query=query,
+    films = await film_service.search_with_genre(
         page=pagination_params.page_number,
         size=pagination_params.page_size,
+        sort_by=sort_by,
+        genre=genre,
     )
     return [FilmShort.model_validate(film.model_dump()) for film in films]
 
 
 @router.get(
     "/search",
-    response_model=list[FilmDetails],
+    response_model=list[FilmShort],
     response_description="Список фильмов",
     status_code=status.HTTP_200_OK,
     summary="Поиск по фильмам",
@@ -75,7 +77,7 @@ async def film_search(
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о фильме",
 )
-async def get_person_details(
+async def get_film_details(
     film_id: FilmID,
     film_service: Annotated[FilmService, Depends()],
 ) -> FilmDetails:
