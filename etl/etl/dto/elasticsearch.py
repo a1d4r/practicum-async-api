@@ -6,6 +6,7 @@ __all__ = [
     "PersonMinimalElasticsearchRecord",
     "PersonFilmWorkElasticsearchRecord",
     "GenreElasticsearchRecord",
+    "GenreMinimalElasticsearchRecord",
     "PersonElasticsearchRecord",
     "FilmWorkElasticsearchRecord",
 ]
@@ -45,6 +46,13 @@ class GenreElasticsearchRecord(BaseElasticsearchRecord):
 
 
 @dataclass
+class GenreMinimalElasticsearchRecord(BaseElasticsearchRecord):
+    """Модель для хранения краткой информации о жанре в индексе Elasticsearch."""
+
+    name: str
+
+
+@dataclass
 class PersonElasticsearchRecord(BaseElasticsearchRecord):
     """Модель для хранения информации о персоне в индексе Elasticsearch."""
 
@@ -57,11 +65,12 @@ class FilmWorkElasticsearchRecord(BaseElasticsearchRecord):
     """Модель для хранения информации о кинопроизведении в индексе Elasticsearch."""
 
     imdb_rating: float
-    genre: list[str]
     title: str
     description: str
-    director: list[str]
+    genres: list[GenreMinimalElasticsearchRecord]
+    directors_names: list[str]
     actors_names: list[str]
     writers_names: list[str]
+    directors: list[PersonMinimalElasticsearchRecord]
     actors: list[PersonMinimalElasticsearchRecord]
     writers: list[PersonMinimalElasticsearchRecord]

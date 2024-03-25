@@ -13,3 +13,8 @@ class Roles(StrEnum):
     actor = auto()
     writer = auto()
     director = auto()
+
+
+class SortOrder(StrEnum):
+    asc = auto()
+    desc = auto()

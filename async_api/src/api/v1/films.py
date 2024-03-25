@@ -1,9 +1,7 @@
 from typing import Annotated
 
-from api.dependencies import PaginationParams
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from models.genre import Genre
-from models.person import Person
+from api.dependencies import PaginationParams, SortParams
+from fastapi import APIRouter, Depends, HTTPException, status
 from models.value_objects import FilmID
 from pydantic import BaseModel, Field
 from services.film import FilmService
@@ -17,15 +15,20 @@ class FilmShort(BaseModel):
     imdb_rating: float
 
 
+class IdName(BaseModel):
+    uuid: FilmID = Field(..., validation_alias="id")
+    name: str
+
+
 class FilmDetails(BaseModel):
     uuid: FilmID = Field(..., validation_alias="id")
     title: str
     imdb_rating: float
-    description: str
-    genre: list[Genre]
-    actors: list[Person]
-    writers: list[Person]
-    directors: list[Person]
+    description: str | None = None
+    genres: list[IdName]
+    actors: list[IdName]
+    writers: list[IdName]
+    directors: list[IdName]
 
 
 @router.get(
@@ -35,22 +38,17 @@ class FilmDetails(BaseModel):
     status_code=status.HTTP_200_OK,
     summary="Получить список всех фильмов",
 )
-async def film_list(
+async def get_film_list(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
-    sort_by: str = Query("id", description="Сортировка фильмов"),
-    genre: str = Query("Action", description="Фильтрация по жанру"),
+    sort_params: Annotated[SortParams, Depends()],
+    genre: str | None = None,
 ) -> list[FilmShort]:
-    if sort_by == "imdb_rating":
-        sort_order = "asc"
-    if sort_by == "-imdb_rating":
-        sort_order = "desc"
-    if sort_by == "id":
-        sort_order = "id"
-    films = await film_service.search_with_genre(
+    films = await film_service.get_list(
         page=pagination_params.page_number,
         size=pagination_params.page_size,
-        sort_by=sort_order,
+        sort_by=sort_params.sort_by,
+        sort_order=sort_params.sort_order,
         genre=genre,
     )
     return [FilmShort.model_validate(film.model_dump()) for film in films]
@@ -63,17 +61,15 @@ async def film_list(
     status_code=status.HTTP_200_OK,
     summary="Поиск по фильмам",
 )
-async def film_search(
+async def search_films(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
-    sort_by: str = Query("id", description="Сортировка фильмов"),
     query: str | None = None,
 ) -> list[FilmShort]:
     films = await film_service.search(
         query=query,
         page=pagination_params.page_number,
         size=pagination_params.page_size,
-        sort_by=sort_by,
     )
     return [FilmShort.model_validate(film.model_dump()) for film in films]
 

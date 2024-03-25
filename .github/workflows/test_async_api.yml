@@ -5,7 +5,7 @@ on:
     branches: [master]
     paths: ["async_api/**"]
   pull_request:
-    paths: ["etl/**"]
+    paths: ["async_api/**"]
 
 jobs:
   lint:
