@@ -24,10 +24,13 @@ def build_film_works_elasticsearch_records(
         dto.FilmWorkElasticsearchRecord(
             id=film_work_info.id,
             imdb_rating=film_work_info.rating,
-            genre=[genre.genre_name for genre in genres_by_film_work_id[film_work_info.id]],
+            genres=[
+                dto.GenreMinimalElasticsearchRecord(id=genre.genre_id, name=genre.genre_name)
+                for genre in genres_by_film_work_id[film_work_info.id]
+            ],
             title=film_work_info.title,
             description=film_work_info.description,
-            director=[
+            directors_names=[
                 fwp.person_full_name
                 for fwp in persons_by_film_work_id[film_work_info.id]
                 if fwp.role == "director"
@@ -51,6 +54,11 @@ def build_film_works_elasticsearch_records(
                 dto.PersonMinimalElasticsearchRecord(id=fwp.person_id, name=fwp.person_full_name)
                 for fwp in persons_by_film_work_id[film_work_info.id]
                 if fwp.role == "writer"
+            ],
+            directors=[
+                dto.PersonMinimalElasticsearchRecord(id=fwp.person_id, name=fwp.person_full_name)
+                for fwp in persons_by_film_work_id[film_work_info.id]
+                if fwp.role == "director"
             ],
         )
         for film_work_info in film_works_info
