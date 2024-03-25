@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from models.value_objects import FilmID, PersonID, Roles
 from pydantic import BaseModel, Field
 from services.person import PersonService
+from fastapi_cache import caches, cache_insert
+from hashlib import sha256
 
 router = APIRouter()
 
@@ -25,6 +27,16 @@ class PersonDetails(BaseModel):
     films: list[PersonFilmShort]
 
 
+def get_cache_key(person_id: PersonID) -> str:
+    key = f"person_films_{person_id}"
+    return sha256(key.encode()).hexdigest()
+
+
+def get_cache_key_search(query: str, page_number: int, page_size: int) -> str:
+    key = f"persons_search_{query}_{page_number}_{page_size}"
+    return sha256(key.encode()).hexdigest()
+
+
 @router.get(
     "/search",
     response_model=list[PersonDetails],
@@ -32,6 +44,7 @@ class PersonDetails(BaseModel):
     status_code=status.HTTP_200_OK,
     summary="Поиск по персонам",
 )
+@cache_insert(key_func=get_cache_key_search, ttl=300, cache=caches["redis"])
 async def search_persons(
     person_service: Annotated[PersonService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -52,6 +65,7 @@ async def search_persons(
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о персоне",
 )
+@cache_insert(key_func=get_cache_key, ttl=300, cache=caches["redis"])
 async def get_person_details(
     person_id: PersonID,
     person_service: Annotated[PersonService, Depends()],
@@ -69,6 +83,7 @@ async def get_person_details(
     status_code=status.HTTP_200_OK,
     summary="Получить список фильмов, в которых участвовала персона",
 )
+@cache_insert(key_func=get_cache_key, ttl=300, cache=caches["redis"])
 async def get_person_films(
     person_id: PersonID,
     person_service: Annotated[PersonService, Depends()],
