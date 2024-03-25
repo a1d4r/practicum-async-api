@@ -41,10 +41,14 @@ async def film_list(
     sort_by: str = Query("id", description="Сортировка фильмов"),
     genre: str = Query("Action", description="Фильтрация по жанру"),
 ) -> list[FilmShort]:
+    if sort_by == "imdb_rating":
+        sort_order = "asc"
+    if sort_by == "-imdb_rating":
+        sort_order = "desc"
     films = await film_service.search_with_genre(
         page=pagination_params.page_number,
         size=pagination_params.page_size,
-        sort_by=sort_by,
+        sort_by=sort_order,
         genre=genre,
     )
     return [FilmShort.model_validate(film.model_dump()) for film in films]
