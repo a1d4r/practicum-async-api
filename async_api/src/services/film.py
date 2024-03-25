@@ -41,8 +41,8 @@ class FilmService:
         *,
         page: int = 1,
         size: int = settings.default_page_size,
-        sort_by: str = "id",
-        sort_order: str = "asc",
+        sort_by: str = "imdb_rating",
+        sort_order: str = "desc",
         genre: str | None = "Action",
     ) -> list[Film]:
         result = await self.elastic.search(
