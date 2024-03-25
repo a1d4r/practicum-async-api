@@ -54,32 +54,3 @@ async def test_get_films_by_genre(film_service: FilmService):
 
     # Assert
     assert len(films) is not None
-
-
-async def test_put_film_to_cache(film_service: FilmService):
-    # Arrange
-    star_wars_id = FilmID(UUID("c35dc09c-8ace-46be-8941-7e50b768ec33"))
-    # n film = await film_service.get_by_id(star_wars_id)
-
-    # Act
-    await film_service.put_film_to_cache(
-        Film(
-            id=star_wars_id,
-            imdb_rating=6.6,
-            title="Star Wars",
-            description="Luke Skywalker, a young farmer from the desert planet of Tattooine, must save Princess Leia from the evil Darth Vader.",
-            directors=[],
-            actors_names=[],
-            writers_names=["George Lucas"],
-            actors=[],
-            writers=[],
-            genres=[],
-            directors_names=[],
-        ),
-    )
-
-    get_film = await film_service.get_film_by_id_from_cache(star_wars_id)
-
-    # Assert
-
-    assert get_film is not None

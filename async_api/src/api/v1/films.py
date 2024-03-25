@@ -1,7 +1,10 @@
 from typing import Annotated
 
+from hashlib import sha256
+
 from api.dependencies import PaginationParams, SortParams
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache import cache_insert, caches
 from models.value_objects import FilmID
 from pydantic import BaseModel, Field
 from services.film import FilmService
@@ -31,6 +34,20 @@ class FilmDetails(BaseModel):
     directors: list[IdName]
 
 
+def get_cache_key(
+    film_service: FilmShort,
+    pagination_params: PaginationParams,
+    query: str,
+) -> str:
+    key = f"{film_service.title}-{pagination_params.page_number}-{pagination_params.page_size}-{query}"
+    return sha256(key.encode()).hexdigest()
+
+
+def get_cache_key_id(film_id: FilmID, film_service: FilmDetails) -> str:
+    key = f"film_details_{film_id}_{film_service.title}"
+    return sha256(key.encode()).hexdigest()
+
+
 @router.get(
     "/",
     response_model=list[FilmShort],
@@ -38,6 +55,7 @@ class FilmDetails(BaseModel):
     status_code=status.HTTP_200_OK,
     summary="Получить список всех фильмов",
 )
+@cache_insert(key_func=get_cache_key, ttl=300, cache=caches["redis"])
 async def get_film_list(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -61,6 +79,7 @@ async def get_film_list(
     status_code=status.HTTP_200_OK,
     summary="Поиск по фильмам",
 )
+@cache_insert(key_func=get_cache_key, ttl=300, cache=caches["redis"])
 async def search_films(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -81,6 +100,7 @@ async def search_films(
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о фильме",
 )
+@cache_insert(key_func=get_cache_key_id, ttl=300, cache=caches["redis"])
 async def get_film_details(
     film_id: FilmID,
     film_service: Annotated[FilmService, Depends()],
