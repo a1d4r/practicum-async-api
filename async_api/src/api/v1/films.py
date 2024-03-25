@@ -45,6 +45,8 @@ async def film_list(
         sort_order = "asc"
     if sort_by == "-imdb_rating":
         sort_order = "desc"
+    if sort_by == "id":
+        sort_order = "id"
     films = await film_service.search_with_genre(
         page=pagination_params.page_number,
         size=pagination_params.page_size,
