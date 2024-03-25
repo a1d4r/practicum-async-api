@@ -60,12 +60,14 @@ async def film_list(
 async def film_search(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
+    sort_by: str = Query("id", description="Сортировка фильмов"),
     query: str | None = None,
 ) -> list[FilmShort]:
     films = await film_service.search(
         query=query,
         page=pagination_params.page_number,
         size=pagination_params.page_size,
+        sort_by=sort_by,
     )
     return [FilmShort.model_validate(film.model_dump()) for film in films]
 
