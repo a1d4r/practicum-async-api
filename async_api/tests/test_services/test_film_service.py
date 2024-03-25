@@ -12,7 +12,7 @@ async def film_service(elastic):
     return FilmService(elastic)
 
 
-async def test_search_film_by_id(film_service):
+async def test_search_film_by_id(film_service: FilmService):
     # Arrange
     star_wars_id = FilmID(UUID("c35dc09c-8ace-46be-8941-7e50b768ec33"))
 
@@ -27,7 +27,7 @@ async def test_search_film_by_id(film_service):
         film.description
         == "Luke Skywalker, a young farmer from the desert planet of Tattooine, must save Princess Leia from the evil Darth Vader."
     )
-    assert film.director == []
+    assert film.directors == []
     assert film.actors_names == []
     assert film.writers_names == ["George Lucas"]
     assert film.actors == []
@@ -48,9 +48,9 @@ async def test_search_films(film_service: FilmService):
     assert all(isinstance(film, Film) for film in films)
 
 
-async def test_search_films_by_genre(film_service: FilmService):
+async def test_get_films_by_genre(film_service: FilmService):
     # Act
-    films = await film_service.search_with_genre(genre="Action")
+    films = await film_service.get_list(genre="Action")
 
     # Assert
     assert len(films) is not None

@@ -8,7 +8,7 @@ from db.elastic import get_elastic
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from models.film import Film
-from models.value_objects import FilmID
+from models.value_objects import FilmID, SortOrder
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
@@ -17,40 +17,41 @@ FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 class FilmService:
     elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
 
+    async def get_list(
+        self,
+        *,
+        page: int = 1,
+        size: int = settings.default_page_size,
+        sort_by: str | None = None,
+        sort_order: SortOrder | None = None,
+        genre: str | None = None,
+    ) -> list[Film]:
+        result = await self.elastic.search(
+            index=settings.es_films_index,
+            from_=(page - 1) * size,
+            size=size,
+            query=(
+                {"bool": {"filter": {"term": {"genres.name.keyword": genre}}}}
+                if genre
+                else {"match_all": {}}
+            ),
+            sort={sort_by: {"order": sort_order or SortOrder.asc}} if sort_by else None,
+        )
+
+        return [Film.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
+
     async def search(
         self,
         *,
         query: str | None = None,
         page: int = 1,
         size: int = settings.default_page_size,
-        sort_order: str = "desc",
-        sort_by: str = "id",
     ) -> list[Film]:
         result = await self.elastic.search(
             index=settings.es_films_index,
             from_=(page - 1) * size,
             size=size,
             query={"match": {"title": query}} if query else {"match_all": {}},
-            sort={sort_by: {"order": sort_order}},
-        )
-
-        return [Film.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
-
-    async def search_with_genre(
-        self,
-        *,
-        page: int = 1,
-        size: int = settings.default_page_size,
-        sort_by: str = "imdb_rating",
-        sort_order: str = "desc",
-        genre: str | None = "Action",
-    ) -> list[Film]:
-        result = await self.elastic.search(
-            index=settings.es_films_index,
-            from_=(page - 1) * size,
-            size=size,
-            query={"term": {"genre": genre}},
-            sort={sort_by: {"order": sort_order}},
         )
 
         return [Film.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
