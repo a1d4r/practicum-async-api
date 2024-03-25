@@ -38,8 +38,8 @@ class FilmDetails(BaseModel):
 async def film_list(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
-    sort_by: str = Query(""),
-    genre: str = Query(""),
+    sort_by: str = Query("id", description="Сортировка фильмов"),
+    genre: str = Query("Action", description="Фильтрация по жанру"),
 ) -> list[FilmShort]:
     films = await film_service.search_with_genre(
         page=pagination_params.page_number,
