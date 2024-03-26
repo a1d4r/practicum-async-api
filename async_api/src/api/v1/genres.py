@@ -1,12 +1,12 @@
 from typing import Annotated
 
+from hashlib import sha256
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache import cache_insert, caches
 from models.value_objects import GenreID
 from pydantic import BaseModel, Field
 from services.genre import GenreService
-from fastapi_cache import caches, cache_insert
-from hashlib import sha256
-
 
 router = APIRouter()
 
@@ -17,8 +17,8 @@ class GenreDetails(BaseModel):
     description: str | None = None
 
 
-def get_cache_key_id(genre_id: GenreID, genre_service: GenreService) -> str:
-    key = f"genre_details_{genre_id}_{genre_service.get_service_name()}"
+def get_cache_key_id(genre_id: GenreID, genre_service: GenreDetails) -> str:
+    key = f"genre_details_{genre_id}_{genre_service.name}"
     return sha256(key.encode()).hexdigest()
 
 
@@ -41,7 +41,9 @@ async def get_genre_details(
 ) -> GenreDetails:
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Genre not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Genre not found"
+        )
     return GenreDetails.model_validate(genre.model_dump())
 
 

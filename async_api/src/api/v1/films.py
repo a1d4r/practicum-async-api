@@ -8,6 +8,7 @@ from fastapi_cache import cache_insert, caches
 from models.value_objects import FilmID
 from pydantic import BaseModel, Field
 from services.film import FilmService
+from setting import Settings
 
 router = APIRouter()
 
@@ -55,7 +56,7 @@ def get_cache_key_id(film_id: FilmID, film_service: FilmDetails) -> str:
     status_code=status.HTTP_200_OK,
     summary="Получить список всех фильмов",
 )
-@cache_insert(key_func=get_cache_key, ttl=300, cache=caches["redis"])
+@cache_insert(key_func=get_cache_key, ttl=Settings.ttl, cache=caches["redis"])
 async def get_film_list(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -79,7 +80,7 @@ async def get_film_list(
     status_code=status.HTTP_200_OK,
     summary="Поиск по фильмам",
 )
-@cache_insert(key_func=get_cache_key, ttl=300, cache=caches["redis"])
+@cache_insert(key_func=get_cache_key, ttl=Settings.ttl, cache=caches["redis"])
 async def search_films(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -100,12 +101,14 @@ async def search_films(
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о фильме",
 )
-@cache_insert(key_func=get_cache_key_id, ttl=300, cache=caches["redis"])
+@cache_insert(key_func=get_cache_key_id, ttl=Settings.ttl, cache=caches["redis"])
 async def get_film_details(
     film_id: FilmID,
     film_service: Annotated[FilmService, Depends()],
 ) -> FilmDetails:
     film = await film_service.get_by_id(film_id)
     if not film:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Film not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Film not found"
+        )
     return FilmDetails.model_validate(film.model_dump())

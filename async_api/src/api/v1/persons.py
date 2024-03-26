@@ -1,12 +1,13 @@
 from typing import Annotated
 
+from hashlib import sha256
+
 from api.dependencies import PaginationParams
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache import cache_insert, caches
 from models.value_objects import FilmID, PersonID, Roles
 from pydantic import BaseModel, Field
 from services.person import PersonService
-from fastapi_cache import caches, cache_insert
-from hashlib import sha256
 
 router = APIRouter()
 
@@ -72,7 +73,9 @@ async def get_person_details(
 ) -> PersonDetails:
     person = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Person not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Person not found"
+        )
     return PersonDetails.model_validate(person.model_dump())
 
 
@@ -90,5 +93,9 @@ async def get_person_films(
 ) -> list[PersonFilmDetailed]:
     person = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Person not found")
-    return [PersonFilmDetailed.model_validate(film.model_dump()) for film in person.films]
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Person not found"
+        )
+    return [
+        PersonFilmDetailed.model_validate(film.model_dump()) for film in person.films
+    ]
