@@ -6,14 +6,14 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
 from core.settings import settings
-from db.elastic import get_elastic
+from db.elastic import get_elasticsearch
 from models.person import Person
 from models.value_objects import PersonID
 
 
 @dataclass
 class PersonService:
-    elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
+    elastic: Annotated[AsyncElasticsearch, Depends(get_elasticsearch)]
 
     async def get_by_id(self, person_id: PersonID) -> Person | None:
         try:

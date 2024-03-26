@@ -1,5 +1,3 @@
-from enum import StrEnum, auto
-
 from pydantic import BaseModel
 
 from models.value_objects import FilmID, PersonID

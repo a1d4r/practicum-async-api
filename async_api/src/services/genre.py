@@ -6,14 +6,14 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
 from core.settings import settings
-from db.elastic import get_elastic
+from db.elastic import get_elasticsearch
 from models.genre import Genre
 from models.value_objects import GenreID
 
 
 @dataclass
 class GenreService:
-    elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
+    elastic: Annotated[AsyncElasticsearch, Depends(get_elasticsearch)]
 
     async def get_by_id(self, genre_id: GenreID) -> Genre | None:
         try:
