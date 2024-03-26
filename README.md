@@ -16,11 +16,25 @@ cp infra/postgres/.env.example infra/postgres/.env
 Запустить все сервисы разом можно следующей командой:
 
 ```bash
-COMPOSE_PROFILES=infra,etl,api docker compose up -d
+COMPOSE_PROFILES=infra,etl,api docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
 ```
 
 Для остановки выполнить:
 
 ```bash
-COMPOSE_PROFILES=infra,etl,api docker compose down
+COMPOSE_PROFILES=infra,etl,api docker-compose -f docker-compose.yml -f docker-compose.override.yml down
+```
+
+## Запуск (Production)
+
+Запустить все сервисы разом можно следующей командой:
+
+```bash
+COMPOSE_PROFILES=infra,etl,api docker-compose up -d
+```
+
+Для остановки выполнить:
+
+```bash
+COMPOSE_PROFILES=infra,etl,api docker-compose down
 ```

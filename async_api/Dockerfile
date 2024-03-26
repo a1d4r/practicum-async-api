@@ -94,5 +94,4 @@ COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY ./src /app/src
 WORKDIR /app
 EXPOSE 8000
-CMD ["gunicorn", "--chdir", "src", "main:app", "--workers", "4",
-     "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "--chdir", "src", "main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
