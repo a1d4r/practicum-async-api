@@ -16,6 +16,7 @@ pydantic-settings = "^2.2.1"
 uvicorn = {extras = ["standart"], version = "^0.29.0"}
 gunicorn = "^21.2.0"
 orjson = "^3.9.15"
+fastapi-cache2 = "^0.2.1"
 
 [tool.poetry.group.dev.dependencies]  # https://python-poetry.org/docs/master/managing-dependencies/
 black = "^24.3.0"
@@ -50,6 +51,7 @@ plugins = [
 
 strict = true  # https://mypy.readthedocs.io/en/stable/existing_code.html#introduce-stricter-options
 ignore_missing_imports = true
+disallow_untyped_decorators = false
 
 [[tool.mypy.overrides]]
 module = "tests.*"

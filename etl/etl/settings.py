@@ -33,6 +33,8 @@ class Settings(BaseSettings):
     retry_min_delay: float = 1.0  # in seconds
     retry_multiplier: float = 2
 
+    ttl: int = 300
+
     @property
     def retry_policy(self) -> wait_random_exponential:
         """Randomly wait up to `retry_multiplier`^x * `retry_min_delay` seconds

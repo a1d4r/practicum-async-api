@@ -1,6 +1,8 @@
 from typing import Annotated
 
+from core.settings import settings
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache.decorator import cache
 from models.value_objects import GenreID
 from pydantic import BaseModel, Field
 from services.genre import GenreService
@@ -21,6 +23,7 @@ class GenreDetails(BaseModel):
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о жанре",
 )
+@cache(expire=settings.ttl)
 async def get_genre_details(
     genre_id: GenreID,
     genre_service: Annotated[GenreService, Depends()],
@@ -38,6 +41,7 @@ async def get_genre_details(
     status_code=status.HTTP_200_OK,
     summary="Получить список всех жанров",
 )
+@cache(expire=settings.ttl)
 async def get_genres_list(
     genre_service: Annotated[GenreService, Depends()],
 ) -> list[GenreDetails]:

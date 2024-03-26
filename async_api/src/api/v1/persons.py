@@ -1,7 +1,9 @@
 from typing import Annotated
 
 from api.dependencies import PaginationParams
+from core.settings import settings
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache.decorator import cache
 from models.value_objects import FilmID, PersonID, Roles
 from pydantic import BaseModel, Field
 from services.person import PersonService
@@ -32,6 +34,7 @@ class PersonDetails(BaseModel):
     status_code=status.HTTP_200_OK,
     summary="Поиск по персонам",
 )
+@cache(expire=settings.ttl)
 async def search_persons(
     person_service: Annotated[PersonService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -52,6 +55,7 @@ async def search_persons(
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о персоне",
 )
+@cache(expire=settings.ttl)
 async def get_person_details(
     person_id: PersonID,
     person_service: Annotated[PersonService, Depends()],
@@ -69,6 +73,7 @@ async def get_person_details(
     status_code=status.HTTP_200_OK,
     summary="Получить список фильмов, в которых участвовала персона",
 )
+@cache(expire=settings.ttl)
 async def get_person_films(
     person_id: PersonID,
     person_service: Annotated[PersonService, Depends()],

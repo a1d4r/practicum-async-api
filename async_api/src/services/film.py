@@ -65,7 +65,5 @@ class FilmService:
 
 
 @lru_cache
-def get_film_service(
-    elastic: AsyncElasticsearch = Depends(get_elastic),
-) -> FilmService:
+def get_film_service(elastic: AsyncElasticsearch = Depends(get_elastic)) -> FilmService:
     return FilmService(elastic)
