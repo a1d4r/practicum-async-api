@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from api.dependencies import PaginationParams, SortParams
+from core.settings import settings
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_cache.decorator import cache
 from models.value_objects import FilmID
@@ -39,7 +40,7 @@ class FilmDetails(BaseModel):
     status_code=status.HTTP_200_OK,
     summary="Получить список всех фильмов",
 )
-@cache(expire=60)
+@cache(expire=settings.ttl)
 async def get_film_list(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -63,7 +64,7 @@ async def get_film_list(
     status_code=status.HTTP_200_OK,
     summary="Поиск по фильмам",
 )
-@cache(expire=60)
+@cache(expire=settings.ttl)
 async def search_films(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -84,7 +85,7 @@ async def search_films(
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о фильме",
 )
-@cache(expire=60)
+@cache(expire=settings.ttl)
 async def get_film_details(
     film_id: FilmID,
     film_service: Annotated[FilmService, Depends()],
