@@ -22,7 +22,7 @@ class GenreDetails(BaseModel):
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о жанре",
 )
-@cache()
+@cache(expire=60)
 async def get_genre_details(
     genre_id: GenreID,
     genre_service: Annotated[GenreService, Depends()],
@@ -40,7 +40,7 @@ async def get_genre_details(
     status_code=status.HTTP_200_OK,
     summary="Получить список всех жанров",
 )
-@cache()
+@cache(expire=60)
 async def get_genres_list(
     genre_service: Annotated[GenreService, Depends()],
 ) -> list[GenreDetails]:
