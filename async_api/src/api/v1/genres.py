@@ -11,7 +11,7 @@ from services.genre import GenreService
 router = APIRouter()
 
 
-class GenreDetails(BaseModel):
+class GenreDetailsSchema(BaseModel):
     uuid: GenreID = Field(..., validation_alias="id")
     name: str
     description: str | None = None
@@ -19,7 +19,7 @@ class GenreDetails(BaseModel):
 
 @router.get(
     "/{genre_id}",
-    response_model=GenreDetails,
+    response_model=GenreDetailsSchema,
     response_description="Информация о жанре",
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о жанре",
@@ -28,16 +28,16 @@ class GenreDetails(BaseModel):
 async def get_genre_details(
     genre_id: GenreID,
     genre_service: Annotated[GenreService, Depends()],
-) -> GenreDetails:
+) -> GenreDetailsSchema:
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Genre not found")
-    return GenreDetails.model_validate(genre.model_dump())
+    return GenreDetailsSchema.model_validate(genre.model_dump())
 
 
 @router.get(
     "/",
-    response_model=list[GenreDetails],
+    response_model=list[GenreDetailsSchema],
     response_description="Список жанров",
     status_code=status.HTTP_200_OK,
     summary="Получить список всех жанров",
@@ -45,6 +45,6 @@ async def get_genre_details(
 @cache(expire=settings.ttl)
 async def get_genres_list(
     genre_service: Annotated[GenreService, Depends()],
-) -> list[GenreDetails]:
+) -> list[GenreDetailsSchema]:
     genres = await genre_service.get_all()
-    return [GenreDetails.model_validate(genre.model_dump()) for genre in genres]
+    return [GenreDetailsSchema.model_validate(genre.model_dump()) for genre in genres]
