@@ -5,12 +5,10 @@ from functools import lru_cache
 
 from core.settings import settings
 from db.elastic import get_elastic
-from db.redis import get_redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from models.film import Film
 from models.value_objects import FilmID, SortOrder
-from redis.asyncio import Redis
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
@@ -18,7 +16,6 @@ FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 @dataclass
 class FilmService:
     elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
-    redis: Redis = Depends(get_redis)
 
     async def get_list(
         self,
@@ -68,8 +65,5 @@ class FilmService:
 
 
 @lru_cache
-def get_film_service(
-    elastic: AsyncElasticsearch = Depends(get_elastic),
-    redis: Redis = Depends(get_redis),
-) -> FilmService:
-    return FilmService(elastic, redis)
+def get_film_service(elastic: AsyncElasticsearch = Depends(get_elastic)) -> FilmService:
+    return FilmService(elastic)
