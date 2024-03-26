@@ -24,8 +24,8 @@ async def test_search_film_by_id(film_service: FilmService):
     assert film.imdb_rating == 6.6
     assert film.title == "Star Wars"
     assert (
-        film.description
-        == "Luke Skywalker, a young farmer from the desert planet of Tattooine, must save Princess Leia from the evil Darth Vader."
+        film.description == "Luke Skywalker, a young farmer from the desert planet of Tattooine, "
+        "must save Princess Leia from the evil Darth Vader."
     )
     assert film.directors == []
     assert film.actors_names == []

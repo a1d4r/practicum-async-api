@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from models.value_objects import FilmID, PersonID
+from models.value_objects import FilmID, GenreID, PersonID
 
 
 class PersonIdName(BaseModel):
@@ -13,7 +13,7 @@ class PersonIdName(BaseModel):
 class GenreIdName(BaseModel):
     """Модель для хранения идентификатора и имени жанра."""
 
-    id: FilmID
+    id: GenreID
     name: str
 
 
