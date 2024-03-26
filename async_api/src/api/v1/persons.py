@@ -73,9 +73,7 @@ async def get_person_details(
 ) -> PersonDetails:
     person = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Person not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Person not found")
     return PersonDetails.model_validate(person.model_dump())
 
 
@@ -93,9 +91,5 @@ async def get_person_films(
 ) -> list[PersonFilmDetailed]:
     person = await person_service.get_by_id(person_id)
     if not person:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Person not found"
-        )
-    return [
-        PersonFilmDetailed.model_validate(film.model_dump()) for film in person.films
-    ]
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Person not found")
+    return [PersonFilmDetailed.model_validate(film.model_dump()) for film in person.films]

@@ -41,9 +41,7 @@ async def get_genre_details(
 ) -> GenreDetails:
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Genre not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Genre not found")
     return GenreDetails.model_validate(genre.model_dump())
 
 

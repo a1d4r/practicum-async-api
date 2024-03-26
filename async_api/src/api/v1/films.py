@@ -108,7 +108,5 @@ async def get_film_details(
 ) -> FilmDetails:
     film = await film_service.get_by_id(film_id)
     if not film:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Film not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Film not found")
     return FilmDetails.model_validate(film.model_dump())
