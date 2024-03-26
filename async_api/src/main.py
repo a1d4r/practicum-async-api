@@ -1,8 +1,9 @@
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
+
 from api.v1 import films, genres, persons
 from core.settings import settings
 from db import elastic, redis
-from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
 
 app = FastAPI(
     title=settings.api_project_name,

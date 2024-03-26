@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from api.dependencies import PaginationParams, SortParams
-from core.settings import settings
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_cache.decorator import cache
-from models.value_objects import FilmID
 from pydantic import BaseModel, Field
+
+from api.dependencies import PaginationParams, SortParams
+from core.settings import settings
+from models.value_objects import FilmID
 from services.film import FilmService
 
 router = APIRouter()

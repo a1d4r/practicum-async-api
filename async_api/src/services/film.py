@@ -3,10 +3,11 @@ from typing import Annotated
 from dataclasses import dataclass
 from functools import lru_cache
 
-from core.settings import settings
-from db.elastic import get_elastic
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
+
+from core.settings import settings
+from db.elastic import get_elastic
 from models.film import Film
 from models.value_objects import FilmID, SortOrder
 

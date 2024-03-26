@@ -1,7 +1,8 @@
 import pytest
 
-from core.settings import settings
 from elasticsearch import AsyncElasticsearch
+
+from core.settings import settings
 
 
 @pytest.fixture()

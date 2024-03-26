@@ -1,7 +1,8 @@
 from enum import StrEnum, auto
 
-from models.value_objects import FilmID, PersonID
 from pydantic import BaseModel
+
+from models.value_objects import FilmID, PersonID
 
 
 class PersonIdName(BaseModel):

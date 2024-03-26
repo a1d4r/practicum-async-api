@@ -1,6 +1,7 @@
+from pydantic import BaseModel, Field
+
 from core.settings import settings
 from models.value_objects import SortOrder
-from pydantic import BaseModel, Field
 
 
 class PaginationParams(BaseModel):

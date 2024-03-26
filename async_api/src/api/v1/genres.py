@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from core.settings import settings
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_cache.decorator import cache
-from models.value_objects import GenreID
 from pydantic import BaseModel, Field
+
+from core.settings import settings
+from models.value_objects import GenreID
 from services.genre import GenreService
 
 router = APIRouter()
