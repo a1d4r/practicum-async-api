@@ -41,7 +41,7 @@ class FilmDetailsSchema(BaseModel):
     status_code=status.HTTP_200_OK,
     summary="Получить список всех фильмов",
 )
-@cache(expire=settings.ttl)
+@cache(expire=settings.cache_ttl_seconds)
 async def get_film_list(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -65,7 +65,7 @@ async def get_film_list(
     status_code=status.HTTP_200_OK,
     summary="Поиск по фильмам",
 )
-@cache(expire=settings.ttl)
+@cache(expire=settings.cache_ttl_seconds)
 async def search_films(
     film_service: Annotated[FilmService, Depends()],
     pagination_params: Annotated[PaginationParams, Depends()],
@@ -86,7 +86,7 @@ async def search_films(
     status_code=status.HTTP_200_OK,
     summary="Получить информацию о фильме",
 )
-@cache(expire=settings.ttl)
+@cache(expire=settings.cache_ttl_seconds)
 async def get_film_details(
     film_id: FilmID,
     film_service: Annotated[FilmService, Depends()],
