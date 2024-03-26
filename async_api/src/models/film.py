@@ -33,9 +33,3 @@ class Film(BaseModel):
     actors: list[PersonIdName]
     writers: list[PersonIdName]
     directors: list[PersonIdName]
-
-
-class FilmSortFields(StrEnum):
-    id = auto()
-    imdb_rating = auto()
-    title = auto()  # type: ignore[assignment]
