@@ -8,8 +8,8 @@ from services.film import FilmService
 
 
 @pytest.fixture()
-async def film_service(elastic, redis):
-    return FilmService(elastic, redis)
+async def film_service(elastic):
+    return FilmService(elastic)
 
 
 async def test_search_film_by_id(film_service: FilmService):
