@@ -1,5 +1,6 @@
-from models.value_objects import FilmID, PersonID, Roles
 from pydantic import BaseModel
+
+from models.value_objects import FilmID, PersonID, Roles
 
 
 class PersonFilm(BaseModel):

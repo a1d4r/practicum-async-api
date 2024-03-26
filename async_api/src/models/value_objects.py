@@ -10,6 +10,8 @@ FilmID = NewType("FilmID", UUID)
 
 
 class Roles(StrEnum):
+    """Роли персоны в фильме."""
+
     actor = auto()
     writer = auto()
     director = auto()

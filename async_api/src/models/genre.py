@@ -1,5 +1,6 @@
-from models.value_objects import GenreID
 from pydantic import BaseModel
+
+from models.value_objects import GenreID
 
 
 class Genre(BaseModel):

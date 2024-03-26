@@ -1,8 +1,9 @@
-from core.settings import settings
 from elasticsearch import AsyncElasticsearch
 
-es = AsyncElasticsearch(settings.elasticsearch_host)
+from core.settings import settings
+
+elasticsearch = AsyncElasticsearch(settings.elasticsearch_host)
 
 
-def get_elastic() -> AsyncElasticsearch:
-    return es
+def get_elasticsearch() -> AsyncElasticsearch:
+    return elasticsearch

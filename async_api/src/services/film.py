@@ -1,21 +1,19 @@
 from typing import Annotated
 
 from dataclasses import dataclass
-from functools import lru_cache
 
-from core.settings import settings
-from db.elastic import get_elastic
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
+
+from core.settings import settings
+from db.elastic import get_elasticsearch
 from models.film import Film
 from models.value_objects import FilmID, SortOrder
-
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
 
 @dataclass
 class FilmService:
-    elastic: Annotated[AsyncElasticsearch, Depends(get_elastic)]
+    elastic: Annotated[AsyncElasticsearch, Depends(get_elasticsearch)]
 
     async def get_list(
         self,
@@ -62,8 +60,3 @@ class FilmService:
         except NotFoundError:
             return None
         return Film.model_validate(doc["_source"])
-
-
-@lru_cache
-def get_film_service(elastic: AsyncElasticsearch = Depends(get_elastic)) -> FilmService:
-    return FilmService(elastic)

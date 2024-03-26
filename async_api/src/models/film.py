@@ -1,7 +1,6 @@
-from enum import StrEnum, auto
-
-from models.value_objects import FilmID, PersonID
 from pydantic import BaseModel
+
+from models.value_objects import FilmID, GenreID, PersonID
 
 
 class PersonIdName(BaseModel):
@@ -14,7 +13,7 @@ class PersonIdName(BaseModel):
 class GenreIdName(BaseModel):
     """Модель для хранения идентификатора и имени жанра."""
 
-    id: FilmID
+    id: GenreID
     name: str
 
 
@@ -32,9 +31,3 @@ class Film(BaseModel):
     actors: list[PersonIdName]
     writers: list[PersonIdName]
     directors: list[PersonIdName]
-
-
-class FilmSortFields(StrEnum):
-    id = auto()
-    imdb_rating = auto()
-    title = auto()  # type: ignore[assignment]

@@ -11,13 +11,13 @@ class Settings(BaseSettings):
 
     # cache
     redis_url: RedisDsn
+    cache_ttl_seconds: int = 300
 
     # elasticsearch
     elasticsearch_host: str
     es_genres_index: str = "genres"
     es_persons_index: str = "persons"
     es_films_index: str = "movies"
-    ttl: int = 30
 
     # pagination
     default_page_size: int = 50
