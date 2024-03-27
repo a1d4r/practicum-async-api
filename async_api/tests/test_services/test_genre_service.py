@@ -17,7 +17,7 @@ async def test_get_genre_by_id(genre_service: GenreService):
     action_genre_id = GenreID(UUID("3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff"))
 
     # Act
-    genre = await genre_service.get_by_id(action_genre_id)
+    genre = await genre_service.get_or_none(action_genre_id)
 
     # Assert
     assert genre is not None
@@ -27,7 +27,7 @@ async def test_get_genre_by_id(genre_service: GenreService):
 
 async def test_get_all_genres(genre_service: GenreService):
     # Act
-    genres = await genre_service.get_all()
+    genres = await genre_service.get_list()
 
     # Assert
     assert len(genres) == 10

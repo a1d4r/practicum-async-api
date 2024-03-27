@@ -54,7 +54,7 @@ class FilmService:
 
         return [Film.model_validate(hit["_source"]) for hit in result["hits"]["hits"]]
 
-    async def get_by_id(self, film_id: FilmID) -> Film | None:
+    async def get_or_none(self, film_id: FilmID) -> Film | None:
         try:
             doc = await self.elastic.get(index=settings.es_films_index, id=str(film_id))
         except NotFoundError:

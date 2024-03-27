@@ -15,14 +15,14 @@ from models.value_objects import GenreID
 class GenreService:
     elastic: Annotated[AsyncElasticsearch, Depends(get_elasticsearch)]
 
-    async def get_by_id(self, genre_id: GenreID) -> Genre | None:
+    async def get_or_none(self, genre_id: GenreID) -> Genre | None:
         try:
             doc = await self.elastic.get(index=settings.es_genres_index, id=str(genre_id))
         except NotFoundError:
             return None
         return Genre.model_validate(doc["_source"])
 
-    async def get_all(self) -> list[Genre]:
+    async def get_list(self) -> list[Genre]:
         result = await self.elastic.search(
             query={"match_all": {}},
         )

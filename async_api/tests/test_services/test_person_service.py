@@ -17,7 +17,7 @@ async def test_get_person_by_id(person_service: PersonService):
     george_lucas_id = PersonID(UUID("a5a8f573-3cee-4ccc-8a2b-91cb9f55250a"))
 
     # Act
-    person = await person_service.get_by_id(george_lucas_id)
+    person = await person_service.get_or_none(george_lucas_id)
 
     # Assert
     assert person is not None

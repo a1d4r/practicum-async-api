@@ -17,7 +17,7 @@ async def test_search_film_by_id(film_service: FilmService):
     star_wars_id = FilmID(UUID("c35dc09c-8ace-46be-8941-7e50b768ec33"))
 
     # Act
-    film = await film_service.get_by_id(star_wars_id)
+    film = await film_service.get_or_none(star_wars_id)
     # Assert
     assert film is not None
     assert film.id == star_wars_id
