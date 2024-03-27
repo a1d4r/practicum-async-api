@@ -2,30 +2,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_cache.decorator import cache
-from pydantic import BaseModel, Field
 
 from api.dependencies import PaginationParams
+from api.v1.schemas.persons import PersonDetailsSchema, PersonFilmDetailedSchema
 from core.settings import settings
-from models.value_objects import FilmID, PersonID, Roles
+from models.value_objects import PersonID
 from services.person import PersonService
 
 router = APIRouter()
-
-
-class PersonFilmShortSchema(BaseModel):
-    uuid: FilmID = Field(..., validation_alias="id")
-    roles: list[Roles]
-
-
-class PersonFilmDetailedSchema(PersonFilmShortSchema):
-    title: str
-    imdb_rating: float
-
-
-class PersonDetailsSchema(BaseModel):
-    uuid: PersonID = Field(..., validation_alias="id")
-    full_name: str
-    films: list[PersonFilmShortSchema]
 
 
 @router.get(

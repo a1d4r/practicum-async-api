@@ -2,19 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_cache.decorator import cache
-from pydantic import BaseModel, Field
 
+from api.v1.schemas.genres import GenreDetailsSchema
 from core.settings import settings
 from models.value_objects import GenreID
 from services.genre import GenreService
 
 router = APIRouter()
-
-
-class GenreDetailsSchema(BaseModel):
-    uuid: GenreID = Field(..., validation_alias="id")
-    name: str
-    description: str | None = None
 
 
 @router.get(
