@@ -15,7 +15,7 @@ from models.value_objects import PersonID
 class PersonService:
     elastic: Annotated[AsyncElasticsearch, Depends(get_elasticsearch)]
 
-    async def get_by_id(self, person_id: PersonID) -> Person | None:
+    async def get_or_none(self, person_id: PersonID) -> Person | None:
         try:
             doc = await self.elastic.get(index=settings.es_persons_index, id=str(person_id))
         except NotFoundError:
