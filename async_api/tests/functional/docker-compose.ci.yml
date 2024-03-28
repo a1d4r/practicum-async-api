@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  api:
+    build:
+      context: ../..
+      target: production
+    env_file:
+      - envs/.env.api.docker
+    depends_on:
+      test-elasticsearch:
+        condition: service_healthy
+
+  test-runner:
+    build:
+      context: ../..
+      target: development
+    command:
+      sh -c "python -m tests.functional.utils.wait_for_redis
+      && python -m tests.functional.utils.wait_for_elasticsearch
+      && python -m tests.functional.utils.wait_for_api
+      && python -m pytest -k functional"
+    volumes:
+      - ../..:/app
+    env_file:
+      - envs/.env.test.docker
+
+  test-redis:
+    image: redis:7.2.4-alpine
+
+  test-elasticsearch:
+    image: elasticsearch:8.12.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    healthcheck:
+      test: curl -u elastic:elastic -s -f test-elasticsearch:9200/_cat/health >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 1GB
+        reservations:
+          cpus: '0.50'
+          memory: 1GB

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-echo "Creating indexes"
-curl -s -XPUT -H 'Content-Type: application/json' -d @/data/indexes/movies.json http://elasticsearch:9200/movies
-curl -s -XPUT -H 'Content-Type: application/json' -d @/data/indexes/genres.json http://elasticsearch:9200/genres
-curl -s -XPUT -H 'Content-Type: application/json' -d @/data/indexes/persons.json http://elasticsearch:9200/persons
+ELASTICSEARCH_URL=$1
+
+echo "Creating indexes at Elasticsearch: $ELASTICSEARCH_URL"
+curl -s -XPUT -H 'Content-Type: application/json' -d @/data/indexes/movies.json "$ELASTICSEARCH_URL"/movies
+curl -s -XPUT -H 'Content-Type: application/json' -d @/data/indexes/genres.json "$ELASTICSEARCH_URL"/genres
+curl -s -XPUT -H 'Content-Type: application/json' -d @/data/indexes/persons.json "$ELASTICSEARCH_URL"/persons

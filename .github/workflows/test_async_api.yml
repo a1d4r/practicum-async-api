@@ -44,6 +44,13 @@ jobs:
         run: make lint
         working-directory: async_api
 
-#      - name: Run tests
-#        run: make test
-#        working-directory: async_api
+  test:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: docker compose -f docker-compose.ci.yml up --build --exit-code-from test-runner
+        working-directory: async_api/tests/functional
