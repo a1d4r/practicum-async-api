@@ -14,7 +14,7 @@ def wait_for_api():
     while True:
         try:
             response = httpx.get(f"{settings.api_url}/health", timeout=1)
-        except httpx.ConnectError:
+        except httpx.HTTPError:
             time.sleep(1)
             continue
         if response.status_code == 200:

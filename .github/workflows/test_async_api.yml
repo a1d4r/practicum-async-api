@@ -2,10 +2,10 @@ name: Test Async API
 
 on:
   push:
-    branches: [master]
-    paths: ["async_api/**"]
+    branches: [ master ]
+    paths: [ "async_api/**" ]
   pull_request:
-    paths: ["async_api/**"]
+    paths: [ "async_api/**" ]
 
 jobs:
   lint:
@@ -43,6 +43,13 @@ jobs:
       - name: Run linters
         run: make lint
         working-directory: async_api
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out repository
+        uses: actions/checkout@v4
 
       - name: Run tests
         run: docker compose -f docker-compose.ci.yml up --build --exit-code-from test-runner
