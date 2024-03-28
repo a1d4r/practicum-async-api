@@ -2,10 +2,10 @@ name: Test Async API
 
 on:
   push:
-    branches: [ master ]
-    paths: [ "async_api/**" ]
+    branches: [master]
+    paths: ["async_api/**"]
   pull_request:
-    paths: [ "async_api/**" ]
+    paths: ["async_api/**"]
 
 jobs:
   lint:

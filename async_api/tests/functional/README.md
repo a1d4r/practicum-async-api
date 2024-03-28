@@ -24,5 +24,5 @@ docker compose down
 ### Запуск тестов
 
 ```
-pytest -k functional
+python -m pytest -k functional
 ```
