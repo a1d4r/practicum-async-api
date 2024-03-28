@@ -8,6 +8,8 @@ services:
       target: production
     env_file:
       - envs/.env.api
+    ports:
+      - "8000:8000"
     depends_on:
       test-elasticsearch:
         condition: service_healthy
@@ -37,12 +39,3 @@ services:
         reservations:
           cpus: '0.50'
           memory: 1GB
-
-  init-elasticsearch:
-    image: curlimages/curl:8.6.0
-    command: /bin/sh /data/create_indexes.sh http://test-elasticsearch:9200
-    volumes:
-      - ../../../infra/elasticsearch/:/data/
-    depends_on:
-      test-elasticsearch:
-        condition: service_healthy
