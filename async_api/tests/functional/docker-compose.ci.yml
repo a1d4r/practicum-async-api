@@ -8,24 +8,32 @@ services:
       target: production
     env_file:
       - envs/.env.api.docker
-    ports:
-      - "8001:8000"
     depends_on:
       test-elasticsearch:
         condition: service_healthy
 
+  test-runner:
+    build:
+      context: ../..
+      target: development
+    command:
+      sh -c "python -m tests.functional.utils.wait_for_redis
+      && python -m tests.functional.utils.wait_for_elasticsearch
+      && python -m tests.functional.utils.wait_for_api
+      && python -m pytest -k functional"
+    volumes:
+      - ../..:/app
+    env_file:
+      - envs/.env.test.docker
+
   test-redis:
     image: redis:7.2.4-alpine
-    ports:
-      - "6380:6379"
 
   test-elasticsearch:
     image: elasticsearch:8.12.2
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-    ports:
-      - "9201:9200"
     healthcheck:
       test: curl -u elastic:elastic -s -f test-elasticsearch:9200/_cat/health >/dev/null || exit 1
       interval: 30s

@@ -1,11 +1,10 @@
 import pytest
 
 from elasticsearch import AsyncElasticsearch
+from tests.functional.settings import settings
 
-from async_api.tests.functional.settings import settings
 
-
-@pytest.fixture()
+@pytest.fixture(scope="session")
 async def es_client():
     es = AsyncElasticsearch(settings.elasticsearch_host)
     yield es

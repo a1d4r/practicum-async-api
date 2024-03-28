@@ -2,9 +2,8 @@ import logging
 import time
 
 from elasticsearch import Elasticsearch
-
-from async_api.tests.functional.settings import settings
-from async_api.tests.functional.utils.logger import setup_logger
+from tests.functional.settings import settings
+from tests.functional.utils.logger import setup_logger
 
 logger = logging.getLogger(__name__)
 

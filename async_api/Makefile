@@ -50,6 +50,10 @@ test:
 	poetry run coverage report
 	poetry run coverage xml
 
+.PHONY: test-functional
+test-functional:
+	python -m pytest -k functional
+
 # Validate pyproject.toml
 .PHONY: check-poetry
 check-poetry:
