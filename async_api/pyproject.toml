@@ -13,7 +13,7 @@ elasticsearch = { extras = ["async"], version = "^8.12.1" }
 fastapi = "^0.110.0"
 pydantic = "^2.6.4"
 pydantic-settings = "^2.2.1"
-uvicorn = {extras = ["standart"], version = "^0.29.0"}
+uvicorn = { extras = ["standart"], version = "^0.29.0" }
 gunicorn = "^21.2.0"
 orjson = "^3.9.15"
 fastapi-cache2 = "^0.2.1"
@@ -22,12 +22,14 @@ fastapi-cache2 = "^0.2.1"
 black = "^24.3.0"
 mypy = "^1.8.0"
 pre-commit = "^3.6.2"
-pytest = "^8.0.2"
-coverage = "^7.4.3"
 typeguard = "^4.1.5"
 ruff = "^0.3.0"
-safety = "<3.0.0"  # Pinned to <3.0.0 due to https://github.com/pyupio/safety/issues/504
+safety = "^3.1.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.1.1"
 pytest-asyncio = "^0.23.6"
+coverage = "^7.4.4"
 
 [tool.black]  # https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
 target-version = ["py312"]
@@ -57,6 +59,7 @@ disallow_untyped_decorators = false
 module = "tests.*"
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+disallow_untyped_calls = false
 
 [tool.pydantic-mypy]
 ## https://pydantic-docs.helpmanual.io/mypy_plugin/#configuring-the-plugin

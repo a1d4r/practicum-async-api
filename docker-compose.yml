@@ -75,7 +75,7 @@ services:
 
   init-elasticsearch:
     image: curlimages/curl:8.6.0
-    command: /bin/sh "/data/create_indexes.sh"
+    command: /bin/sh /data/create_indexes.sh http://elasticsearch:9200
     volumes:
       - ./infra/elasticsearch/:/data/
     depends_on:
