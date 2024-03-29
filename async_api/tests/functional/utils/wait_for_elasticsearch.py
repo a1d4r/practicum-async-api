@@ -2,6 +2,7 @@ import logging
 import time
 
 from elasticsearch import Elasticsearch
+
 from tests.functional.settings import settings
 from tests.functional.utils.logger import setup_logger
 
