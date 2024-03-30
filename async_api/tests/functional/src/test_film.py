@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from httpx import AsyncClient
@@ -88,3 +90,32 @@ async def test_get_film_details(test_client: AsyncClient, es_client: AsyncElasti
     assert response_film["writers"] == [
         {"uuid": str(writer.id), "name": writer.name} for writer in film.writers
     ]
+
+
+async def test_get_non_existent_film_details(test_client: AsyncClient):
+    # Arrange
+    non_existent_film_id = uuid4()
+
+    # Act
+    response = await test_client.get(f"/v1/films/{non_existent_film_id}")
+
+    # Assert
+    assert response.status_code == 404
+
+
+async def test_get_film_details_from_cache(test_client: AsyncClient, es_client: AsyncElasticsearch):
+    # Arrange
+    film: Film = FilmFactory.build()
+    await insert_films(es_client, [film])
+
+    # Act
+    await test_client.get(f"/v1/films/{film.id}")
+    await es_client.delete(index=settings.es_films_index, id=str(film.id), refresh="wait_for")
+    response = await test_client.get(f"/v1/films/{film.id}")
+
+    # Assert
+    assert response.status_code == 200
+    response_film = response.json()
+    assert response_film["title"] == film.title
+    assert response_film["imdb_rating"] == film.imdb_rating
+    assert response_film["description"] == film.description
