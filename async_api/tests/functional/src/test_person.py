@@ -51,7 +51,7 @@ async def test_get_person_details(test_client: AsyncClient, es_client: AsyncElas
     await insert_persons(es_client, [person])
 
     # Act
-    response = await test_client.get(f"/v1/persons/{person.id}")
+    response = await test_client.get(f"/v1/{person.id}")
 
     # Assert
     assert response.status_code == 200
