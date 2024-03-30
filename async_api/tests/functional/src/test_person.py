@@ -25,7 +25,9 @@ async def test_list_persons(test_client: AsyncClient, es_client: AsyncElasticsea
     await insert_persons(es_client, persons)
 
     # Act
-    response = await test_client.get("/v1/persons/", params={"page_number": 1, "page_size": 10})
+    response = await test_client.get(
+        "/v1/persons/search", params={"page_number": 1, "page_size": 10}
+    )
 
     # Assert
     assert response.status_code == 200
@@ -51,7 +53,7 @@ async def test_get_person_details(test_client: AsyncClient, es_client: AsyncElas
     await insert_persons(es_client, [person])
 
     # Act
-    response = await test_client.get(f"/v1/{person.id}")
+    response = await test_client.get(f"/v1/persons/{person.id}")
 
     # Assert
     assert response.status_code == 200
