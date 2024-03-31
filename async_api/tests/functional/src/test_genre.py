@@ -23,11 +23,11 @@ async def insert_genres(es_client: AsyncElasticsearch, genres: list[Genre]):
 
 async def test_list_genres(test_client: AsyncClient, es_client: AsyncElasticsearch):
     # Arrange
-    genres: list[Genre] = GenreFactory.batch(10)
+    genres: list[Genre] = GenreFactory.batch(15)
     await insert_genres(es_client, genres)
 
     # Act
-    response = await test_client.get("/v1/genres/")
+    response = await test_client.get("/v1/genres/", params={"page_number": 1, "page_size": 10})
 
     # Assert
     assert response.status_code == 200
