@@ -6,7 +6,7 @@ from httpx import AsyncClient
 
 from models.genre import Genre
 from tests.functional.settings import settings
-from tests.functional.utils.factories import GenreIdNameFactory
+from tests.functional.utils.factories import GenreFactory
 
 
 async def insert_genres(es_client: AsyncElasticsearch, genres: list[Genre]):
@@ -23,7 +23,7 @@ async def insert_genres(es_client: AsyncElasticsearch, genres: list[Genre]):
 
 async def test_list_genres(test_client: AsyncClient, es_client: AsyncElasticsearch):
     # Arrange
-    genres: list[Genre] = GenreIdNameFactory.batch(15)
+    genres: list[Genre] = GenreFactory.batch(10)
     await insert_genres(es_client, genres)
 
     # Act
@@ -45,7 +45,7 @@ async def test_list_genres(test_client: AsyncClient, es_client: AsyncElasticsear
 
 
 async def test_get_genre_details(test_client: AsyncClient, es_client: AsyncElasticsearch):
-    genre: Genre = GenreIdNameFactory.build()
+    genre: Genre = GenreFactory.build()
     await insert_genres(es_client, [genre])
 
     response = await test_client.get(f"/v1/genres/{genre.id}")
@@ -53,6 +53,7 @@ async def test_get_genre_details(test_client: AsyncClient, es_client: AsyncElast
     assert response.status_code == 200
     response_genre = response.json()
     assert response_genre["name"] == genre.name
+    assert response_genre["description"] == genre.description
 
 
 async def test_get_non_existent_genre_details(test_client: AsyncClient):
@@ -71,7 +72,7 @@ async def test_get_genre_details_from_cache(
     es_client: AsyncElasticsearch,
 ):
     # Arrange
-    genre: Genre = GenreIdNameFactory.build()
+    genre: Genre = GenreFactory.build()
     await insert_genres(es_client, [genre])
 
     # Act
