@@ -1,10 +1,10 @@
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from httpx import AsyncClient
-from tests.functional.settings import settings
-from tests.functional.utils.factories import PersonIdNameFactory
 
 from models.person import Person
+from tests.functional.settings import settings
+from tests.functional.utils.factories import PersonFactory
 
 
 async def insert_persons(es_client: AsyncElasticsearch, persons: list[Person]):
@@ -21,12 +21,13 @@ async def insert_persons(es_client: AsyncElasticsearch, persons: list[Person]):
 
 async def test_list_persons(test_client: AsyncClient, es_client: AsyncElasticsearch):
     # Arrange
-    persons: list[Person] = PersonIdNameFactory.batch(15)
+    persons: list[Person] = PersonFactory.batch(15)
     await insert_persons(es_client, persons)
 
     # Act
     response = await test_client.get(
-        "/v1/persons/search", params={"page_number": 1, "page_size": 10}
+        "/v1/persons/search",
+        params={"page_number": 1, "page_size": 10},
     )
 
     # Assert
@@ -45,11 +46,12 @@ async def test_list_persons(test_client: AsyncClient, es_client: AsyncElasticsea
     )
     assert person_in_es is not None
     assert some_person["full_name"] == person_in_es.full_name
+    assert some_person["films"] == person_in_es.films
 
 
 async def test_get_person_details(test_client: AsyncClient, es_client: AsyncElasticsearch):
     # Arrange
-    person: Person = PersonIdNameFactory.build()
+    person: Person = PersonFactory.build()
     await insert_persons(es_client, [person])
 
     # Act
@@ -59,7 +61,4 @@ async def test_get_person_details(test_client: AsyncClient, es_client: AsyncElas
     assert response.status_code == 200
     response_person = response.json()
     assert response_person["full_name"] == person.full_name
-
-    assert response_person["films"] == [
-        {"uuid": str(film.id), "title": film.title} for film in person.films
-    ]
+    assert response_person["films"] == person.films
