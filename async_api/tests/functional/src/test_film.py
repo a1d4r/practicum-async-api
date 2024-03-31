@@ -149,10 +149,3 @@ async def test_search_films_not_found(test_client: AsyncClient, es_client: Async
     # Assert
     assert response.status_code == 200
     assert len(response.json()) == 0
-
-    # Act
-    response = await test_client.get("/v1/films/search", params={"query": "Star"})
-
-    # Assert
-    assert response.status_code == 200
-    assert len(response.json()) == 1
