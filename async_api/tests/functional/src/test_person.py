@@ -53,6 +53,38 @@ async def test_list_persons(test_client: AsyncClient, es_client: AsyncElasticsea
     ]
 
 
+async def test_list_persons_sort(test_client: AsyncClient, es_client: AsyncElasticsearch):
+    # Arrange
+    persons: list[Person] = PersonFactory.batch(10)
+    await insert_persons(es_client, persons)
+
+    # Act
+    response = await test_client.get(
+        "/v1/persons/search",
+        params={"roles": "actor"},
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+    response_persons = response.json()
+    assert len(response_persons) == 10
+    assert {response_person["uuid"] for response_person in response_persons} <= {
+        str(person.id) for person in persons
+    }
+
+    some_person = response_persons[0]
+    person_in_es = next(
+        (person for person in persons if str(person.id) == some_person["uuid"]),
+        None,
+    )
+    assert person_in_es is not None
+    assert some_person["full_name"] == person_in_es.full_name
+    assert some_person["films"] == [
+        {"uuid": str(film.id), "roles": film.roles} for film in person_in_es.films
+    ]
+
+
 async def test_get_person_details(test_client: AsyncClient, es_client: AsyncElasticsearch):
     # Arrange
     person: Person = PersonFactory.build()
@@ -101,3 +133,25 @@ async def test_get_person_details_from_cache(
     assert response_person["films"] == [
         {"uuid": str(film.id), "roles": film.roles} for film in person.films
     ]
+
+
+async def test_get_films_by_person(test_client: AsyncClient, es_client: AsyncElasticsearch):
+    # Arrange
+    person: Person = PersonFactory.build()
+    await insert_persons(es_client, [person])
+
+    # Act
+    response = await test_client.get(
+        f"/v1/persons/{person.id}/films",
+        params={"page_number": 1, "page_size": 10},
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+    response_persons = response.json()
+    some_film = response_persons[0]
+    assert some_film["imdb_rating"] > 0
+    assert some_film["imdb_rating"] < 10
+    assert some_film["roles"] is not None
+    assert some_film["title"] is not None

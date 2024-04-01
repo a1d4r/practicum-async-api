@@ -7,7 +7,7 @@ from polyfactory.decorators import post_generated
 from polyfactory.factories.pydantic_factory import ModelFactory
 
 from models.film import Film, GenreIdName, PersonIdName
-from models.person import Person
+from models.person import Person, PersonFilm
 
 GENRES = [
     "Action",
@@ -18,6 +18,23 @@ GENRES = [
     "Horror",
     "Romance",
 ]
+
+
+class PersonFilmFactory(ModelFactory[PersonFilm]):
+    __faker__ = Faker()
+    __set_as_default_factory_for_type__ = True
+
+    __randomize_collection_length__ = True
+    __min_collection_length__ = 1
+    __max_collection_length__ = 4
+
+    @classmethod
+    def title(cls) -> str:
+        return cast(str, cls.__faker__.sentence(nb_words=3))
+
+    @classmethod
+    def imdb_rating(cls):
+        return cast(str, cls.__faker__.random.uniform(1.0, 10.0))
 
 
 class PersonFactory(ModelFactory[Person]):
