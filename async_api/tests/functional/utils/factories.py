@@ -7,8 +7,7 @@ from polyfactory.decorators import post_generated
 from polyfactory.factories.pydantic_factory import ModelFactory
 
 from models.film import Film, GenreIdName, PersonIdName
-from models.person import Person, PersonFilm
-from models.value_objects import Roles
+from models.person import Person
 
 GENRES = [
     "Action",
@@ -21,51 +20,17 @@ GENRES = [
 ]
 
 
-class RolesFactory(ModelFactory[Roles]):
-    _faker__ = Faker()
-    __set_as_default_factory_for_type__ = True
-
-    @classmethod
-    def actor(cls) -> str:
-        return cast(str, cls.__faker__.sentence(nb_words=3))
-
-    @classmethod
-    def writer(cls) -> str:
-        return cast(str, cls.__faker__.sentence(nb_words=3))
-
-    @classmethod
-    def director(cls) -> str:
-        return cast(str, cls.__faker__.sentence(nb_words=3))
-
-
-class PersonFilmFactory(ModelFactory[PersonFilm]):
-    __faker__ = Faker()
-    __set_as_default_factory_for_type__ = True
-
-    @classmethod
-    def title(cls) -> str:
-        return cast(str, cls.__faker__.sentence(nb_words=3))
-
-    @classmethod
-    def imdb_rating(cls):
-        return cast(str, cls.__faker__.random.uniform(1.0, 10.0))
-
-    @classmethod
-    def roles(cls) -> list[RolesFactory]:
-        return [RolesFactory() for _ in range(3)]
-
-
 class PersonFactory(ModelFactory[Person]):
     __faker__ = Faker()
     __set_as_default_factory_for_type__ = True
 
+    __randomize_collection_length__ = True
+    __min_collection_length__ = 1
+    __max_collection_length__ = 4
+
     @classmethod
     def full_name(cls) -> str:
         return cast(str, cls.__faker__.name())
-
-    @classmethod
-    def films(cls) -> list[PersonFilmFactory]:
-        return [PersonFilmFactory() for _ in range(3)]
 
 
 class PersonIdNameFactory(ModelFactory[PersonIdName]):

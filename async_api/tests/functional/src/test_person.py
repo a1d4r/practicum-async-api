@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from httpx import AsyncClient
@@ -46,7 +48,9 @@ async def test_list_persons(test_client: AsyncClient, es_client: AsyncElasticsea
     )
     assert person_in_es is not None
     assert some_person["full_name"] == person_in_es.full_name
-    assert some_person["films"] == person_in_es.films
+    assert some_person["films"] == [
+        {"uuid": str(film.id), "roles": film.roles} for film in person_in_es.films
+    ]
 
 
 async def test_get_person_details(test_client: AsyncClient, es_client: AsyncElasticsearch):
@@ -61,4 +65,39 @@ async def test_get_person_details(test_client: AsyncClient, es_client: AsyncElas
     assert response.status_code == 200
     response_person = response.json()
     assert response_person["full_name"] == person.full_name
-    assert response_person["films"] == person.films
+    assert response_person["films"] == [
+        {"uuid": str(film.id), "roles": film.roles} for film in person.films
+    ]
+
+
+async def test_get_non_existent_person_details(test_client: AsyncClient):
+    # Arrange
+    non_existent_person_id = uuid4()
+
+    # Act
+    response = await test_client.get(f"/v1/persons/{non_existent_person_id}")
+
+    # Assert
+    assert response.status_code == 404
+
+
+async def test_get_person_details_from_cache(
+    test_client: AsyncClient,
+    es_client: AsyncElasticsearch,
+):
+    # Arrange
+    person: Person = PersonFactory.build()
+    await insert_persons(es_client, [person])
+
+    # Act
+    await test_client.get(f"/v1/persons/{person.id}")
+    await es_client.delete(index=settings.es_persons_index, id=str(person.id), refresh="wait_for")
+    response = await test_client.get(f"/v1/persons/{person.id}")
+
+    # Assert
+    assert response.status_code == 200
+    response_person = response.json()
+    assert response_person["full_name"] == person.full_name
+    assert response_person["films"] == [
+        {"uuid": str(film.id), "roles": film.roles} for film in person.films
+    ]
