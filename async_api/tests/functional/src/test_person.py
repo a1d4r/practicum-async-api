@@ -4,9 +4,9 @@ from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from httpx import AsyncClient
 
-from models.person import Person, PersonFilm
+from models.person import Person
 from tests.functional.settings import settings
-from tests.functional.utils.factories import PersonFactory, PersonFilmFactory
+from tests.functional.utils.factories import PersonFactory
 
 
 async def insert_persons(es_client: AsyncElasticsearch, persons: list[Person]):
