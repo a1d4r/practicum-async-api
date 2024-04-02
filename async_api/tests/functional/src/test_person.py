@@ -53,35 +53,26 @@ async def test_list_persons(test_client: AsyncClient, es_client: AsyncElasticsea
     ]
 
 
-async def test_list_persons_sort(test_client: AsyncClient, es_client: AsyncElasticsearch):
+async def test_search_person_by_name(test_client: AsyncClient, es_client: AsyncElasticsearch):
     # Arrange
-    persons: list[Person] = PersonFactory.batch(10)
-    await insert_persons(es_client, persons)
+    person = PersonFactory.build(full_name="John Cena")
+    await insert_persons(es_client, [person])
 
     # Act
     response = await test_client.get(
         "/v1/persons/search",
-        params={"genres": "Action"},
+        params={"query": "John"},
     )
 
     # Assert
     assert response.status_code == 200
+    assert len(response.json()) == 1
+    response_person = response.json()
+    first_person = response_person[0]
 
-    response_persons = response.json()
-    assert len(response_persons) == 10
-    assert {response_person["uuid"] for response_person in response_persons} <= {
-        str(person.id) for person in persons
-    }
-
-    some_person = response_persons[0]
-    person_in_es = next(
-        (person for person in persons if str(person.id) == some_person["uuid"]),
-        None,
-    )
-    assert person_in_es is not None
-    assert some_person["full_name"] == person_in_es.full_name
-    assert some_person["films"] == [
-        {"uuid": str(film.id), "roles": film.roles} for film in person_in_es.films
+    assert first_person["films"] is not None
+    assert first_person["films"] == [
+        {"uuid": str(person.id), "roles": person.roles} for person in person.films
     ]
 
 
