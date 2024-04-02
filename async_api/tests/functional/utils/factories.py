@@ -69,6 +69,19 @@ class GenreIdNameFactory(ModelFactory[GenreIdName]):
         return cls.__random__.choice(GENRES)
 
 
+class GenreFactory(ModelFactory[Genre]):
+    __random__ = Random()
+    __set_as_default_factory_for_type__ = True
+
+    @classmethod
+    def name(cls) -> str:
+        return cls.__random__.choice(GENRES)
+
+    @classmethod
+    def description(cls) -> str:
+        return cast(str, cls.__faker__.sentence(nb_words=10))
+
+
 class FilmFactory(ModelFactory[Film]):
     __faker__ = Faker()
     __model__ = Film
