@@ -119,3 +119,33 @@ async def test_get_film_details_from_cache(test_client: AsyncClient, es_client: 
     assert response_film["title"] == film.title
     assert response_film["imdb_rating"] == film.imdb_rating
     assert response_film["description"] == film.description
+
+
+async def test_search_films_by_name(test_client: AsyncClient, es_client: AsyncElasticsearch):
+    # Arrange
+    film: Film = FilmFactory.build(title="Star Wars")
+    await insert_films(es_client, [film])
+
+    # Act
+    response = await test_client.get("/v1/films/search", params={"query": "Star"})
+
+    # Assert
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    found_film = response.json()[0]
+    assert found_film["uuid"] == str(film.id)
+    assert found_film["title"] == film.title
+    assert found_film["imdb_rating"] == film.imdb_rating
+
+
+async def test_search_films_not_found(test_client: AsyncClient, es_client: AsyncElasticsearch):
+    # Arrange
+    film: Film = FilmFactory.build(title="Star Wars")
+    await insert_films(es_client, [film])
+
+    # Act
+    response = await test_client.get("/v1/films/search", params={"query": "The Lord of the Rings"})
+
+    # Assert
+    assert response.status_code == 200
+    assert len(response.json()) == 0
