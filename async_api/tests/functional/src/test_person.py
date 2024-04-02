@@ -4,9 +4,9 @@ from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from httpx import AsyncClient
 
-from models.person import Person
+from models.person import Person, PersonFilm
 from tests.functional.settings import settings
-from tests.functional.utils.factories import PersonFactory
+from tests.functional.utils.factories import PersonFactory, PersonFilmFactory
 
 
 async def insert_persons(es_client: AsyncElasticsearch, persons: list[Person]):
@@ -61,7 +61,7 @@ async def test_list_persons_sort(test_client: AsyncClient, es_client: AsyncElast
     # Act
     response = await test_client.get(
         "/v1/persons/search",
-        params={"roles": "actor"},
+        params={"genres": "Action"},
     )
 
     # Assert
@@ -138,12 +138,12 @@ async def test_get_person_details_from_cache(
 async def test_get_films_by_person(test_client: AsyncClient, es_client: AsyncElasticsearch):
     # Arrange
     person: Person = PersonFactory.build()
+
     await insert_persons(es_client, [person])
 
     # Act
     response = await test_client.get(
         f"/v1/persons/{person.id}/films",
-        params={"page_number": 1, "page_size": 10},
     )
 
     # Assert
@@ -151,7 +151,6 @@ async def test_get_films_by_person(test_client: AsyncClient, es_client: AsyncEla
 
     response_persons = response.json()
     some_film = response_persons[0]
-    assert some_film["imdb_rating"] > 0
-    assert some_film["imdb_rating"] < 10
-    assert some_film["roles"] is not None
-    assert some_film["title"] is not None
+    assert some_film["imdb_rating"] == person.films[0].imdb_rating
+    assert some_film["roles"] == person.films[0].roles
+    assert some_film["title"] == person.films[0].title
