@@ -7,6 +7,7 @@ from polyfactory.decorators import post_generated
 from polyfactory.factories.pydantic_factory import ModelFactory
 
 from models.film import Film, GenreIdName, PersonIdName
+from models.genre import Genre
 from models.person import Person, PersonFilm
 
 GENRES = [
