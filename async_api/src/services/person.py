@@ -20,6 +20,7 @@ class BasePersonService(ABC):
     @abstractmethod
     async def search(
         self,
+        *,
         query: str | None = None,
         page: int = 1,
         size: int = settings.default_page_size,

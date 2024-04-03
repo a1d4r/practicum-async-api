@@ -53,6 +53,7 @@ class ElasticsearchFilmService(BaseFilmService):
         sort_order: SortOrder | None = None,
         genre: str | None = None,
     ) -> list[Film]:
+        query: dict[str, dict[str, dict[str, str | dict[str, str]]]]
         query = {"match_all": {}}
         if genre:
             query = {"bool": {"filter": {"term": {"genres.name.keyword": genre}}}}
