@@ -37,6 +37,7 @@ class ElasticsearchPersonService(BasePersonService):
             return Person.model_validate(doc["_source"])
         except NotFoundError:
             return None
+        return Person.model_validate(doc["_source"])
 
     async def search(
         self,
