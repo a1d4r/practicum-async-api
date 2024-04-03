@@ -8,7 +8,7 @@ from api.v1.schemas.persons import PersonDetailsSchema, PersonFilmDetailedSchema
 from core.settings import settings
 from models.person import Person, PersonFilm
 from models.value_objects import PersonID
-from services.person import PersonService
+from services.person import BasePersonService, ElasticsearchPersonService
 
 router = APIRouter()
 
@@ -22,7 +22,7 @@ router = APIRouter()
 )
 @cache(expire=settings.cache_ttl_seconds)
 async def search_persons(
-    person_service: Annotated[PersonService, Depends()],
+    person_service: Annotated[BasePersonService, Depends(ElasticsearchPersonService)],
     pagination_params: Annotated[PaginationParams, Depends()],
     query: str | None = None,
 ) -> list[Person]:
@@ -43,7 +43,7 @@ async def search_persons(
 @cache(expire=settings.cache_ttl_seconds)
 async def get_person_details(
     person_id: PersonID,
-    person_service: Annotated[PersonService, Depends()],
+    person_service: Annotated[BasePersonService, Depends(ElasticsearchPersonService)],
 ) -> Person:
     person = await person_service.get_or_none(person_id)
     if not person:
@@ -61,7 +61,7 @@ async def get_person_details(
 @cache(expire=settings.cache_ttl_seconds)
 async def get_person_films(
     person_id: PersonID,
-    person_service: Annotated[PersonService, Depends()],
+    person_service: Annotated[BasePersonService, Depends(ElasticsearchPersonService)],
 ) -> list[PersonFilm]:
     person = await person_service.get_or_none(person_id)
     if not person:

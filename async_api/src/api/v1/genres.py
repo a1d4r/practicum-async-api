@@ -7,7 +7,7 @@ from api.v1.schemas.genres import GenreDetailsSchema
 from core.settings import settings
 from models.genre import Genre
 from models.value_objects import GenreID
-from services.genre import GenreService
+from services.genre import BaseGenreService, ElasticsearchGenreService
 
 router = APIRouter()
 
@@ -22,7 +22,7 @@ router = APIRouter()
 @cache(expire=settings.cache_ttl_seconds)
 async def get_genre_details(
     genre_id: GenreID,
-    genre_service: Annotated[GenreService, Depends()],
+    genre_service: Annotated[BaseGenreService, Depends(ElasticsearchGenreService)],
 ) -> Genre:
     genre = await genre_service.get_or_none(genre_id)
     if not genre:
@@ -39,6 +39,6 @@ async def get_genre_details(
 )
 @cache(expire=settings.cache_ttl_seconds)
 async def get_genres_list(
-    genre_service: Annotated[GenreService, Depends()],
+    genre_service: Annotated[BaseGenreService, Depends(ElasticsearchGenreService)],
 ) -> list[Genre]:
     return await genre_service.get_list()

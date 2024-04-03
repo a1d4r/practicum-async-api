@@ -8,7 +8,7 @@ from api.v1.schemas.films import FilmDetailsSchema, FilmShortSchema
 from core.settings import settings
 from models.film import Film
 from models.value_objects import FilmID
-from services.film import FilmService
+from services.film import BaseFilmService, ElasticsearchFilmService
 
 router = APIRouter()
 
@@ -22,7 +22,7 @@ router = APIRouter()
 )
 @cache(expire=settings.cache_ttl_seconds)
 async def get_film_list(
-    film_service: Annotated[FilmService, Depends()],
+    film_service: Annotated[BaseFilmService, Depends(ElasticsearchFilmService)],
     pagination_params: Annotated[PaginationParams, Depends()],
     sort_params: Annotated[SortParams, Depends()],
     genre: str | None = None,
@@ -45,7 +45,7 @@ async def get_film_list(
 )
 @cache(expire=settings.cache_ttl_seconds)
 async def search_films(
-    film_service: Annotated[FilmService, Depends()],
+    film_service: Annotated[BaseFilmService, Depends(ElasticsearchFilmService)],
     pagination_params: Annotated[PaginationParams, Depends()],
     query: str | None = None,
 ) -> list[Film]:
@@ -65,8 +65,8 @@ async def search_films(
 )
 @cache(expire=settings.cache_ttl_seconds)
 async def get_film_details(
+    film_service: Annotated[BaseFilmService, Depends(ElasticsearchFilmService)],
     film_id: FilmID,
-    film_service: Annotated[FilmService, Depends()],
 ) -> Film:
     film = await film_service.get_or_none(film_id)
     if not film:
