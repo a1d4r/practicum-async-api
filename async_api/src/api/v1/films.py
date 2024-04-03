@@ -65,8 +65,7 @@ async def search_films(
 )
 @cache(expire=settings.cache_ttl_seconds)
 async def get_film_details(
-    film_service: Annotated[BaseFilmService, Depends(ElasticsearchFilmService)],
-    film_id: FilmID,
+    film_id: FilmID, film_service: Annotated[BaseFilmService, Depends(ElasticsearchFilmService)]
 ) -> Film:
     film = await film_service.get_or_none(film_id)
     if not film:
