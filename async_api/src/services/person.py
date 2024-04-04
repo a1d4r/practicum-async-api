@@ -35,7 +35,6 @@ class ElasticsearchPersonService(BasePersonService):
     async def get_or_none(self, person_id: PersonID) -> Person | None:
         try:
             doc = await self.elastic.get(index=settings.es_persons_index, id=str(person_id))
-            return Person.model_validate(doc["_source"])
         except NotFoundError:
             return None
         return Person.model_validate(doc["_source"])
