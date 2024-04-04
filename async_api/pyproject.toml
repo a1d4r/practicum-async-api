@@ -33,6 +33,7 @@ coverage = "^7.4.4"
 httpx = "^0.27.0"
 polyfactory = "^2.15.0"
 faker = "^24.4.0"
+backoff = "^2.2.1"
 
 [tool.black]  # https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
 target-version = ["py312"]
