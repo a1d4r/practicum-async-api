@@ -11,13 +11,14 @@ from api.v1 import films, genres, persons
 from core.settings import settings
 from db.elastic import elasticsearch
 from db.redis import redis
+from utils.cache import key_builder
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     await redis.initialize()
     await elasticsearch.info()
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache", key_builder=key_builder)
     yield
     await redis.close()
     await elasticsearch.close()
